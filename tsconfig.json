@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "CommonJS",
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "@config": ["./runtimeConfig"],
+      "@routes/*": ["./src/routes/*"],
+      "@server/*": ["src/bin/*"],
+      "@controller/*": ["./src/controller/*"],
+      "@middleware/*": ["./src/middleware/*"],
+      "@core/*": ["./src/core/*"],
+      "@service/*": ["./src/service/*"],
+      "@statusCodes": ["./src/core/statusCodes"],
+      "@fixtures/*": ["./src/__test__/fixtures/*"],
+      "@types": ["./src/core/types.d.ts"],
+      "@src/*": ["./src/*"],
+    },
+    "outDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "coverage", "dist"]
+}
