@@ -16,7 +16,7 @@
   </a>
 </p>
 <h1 align="center">
-  <img src="https://github-production-user-asset-6210df.s3.amazonaws.com/69832338/413184485-aa62afca-ac6f-4260-888e-558d858e191b.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20250214%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250214T062329Z&X-Amz-Expires=300&X-Amz-Signature=0ad77ef19831a9a54d1e2e3907ff6a1a83f0dad8c2a5f05242276f1728b9cc88&X-Amz-SignedHeaders=host" alt="image">
+  <img src="https://github.com/user-attachments/assets/cc279557-8ff7-4919-90dc-2fcf8b2749e0" alt="image">
 </h1>
 
 A comprehensive platform for building an E-Commerce platform
