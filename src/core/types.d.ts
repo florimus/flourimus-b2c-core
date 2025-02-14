@@ -8,26 +8,74 @@ import { z } from 'zod';
  *     User:
  *       type: object
  *       properties:
- *         id:
+ *         _id:
  *           type: string
  *           description: The user ID
- *         name:
+ *         firstName:
  *           type: string
- *           description: The user's name
+ *           description: The user's first name
+ *         lastName:
+ *           type: string
+ *           description: The user's last name (optional)
  *         email:
  *           type: string
  *           description: The user's email
+ *         phone:
+ *           type: object
+ *           properties:
+ *             dialCode:
+ *               type: string
+ *               description: The phone dial code
+ *             number:
+ *               type: string
+ *               description: The phone number
+ *           description: The user's phone number (optional)
+ *         password:
+ *           type: string
+ *           description: The user's password (optional)
+ *         role:
+ *           type: string
+ *           description: The user's role
+ *         isBlocked:
+ *           type: boolean
+ *           description: Whether the user is blocked
+ *         loginType:
+ *           type: string
+ *           enum: [password, google]
+ *           description: The login type
+ *         token:
+ *           type: string
+ *           description: The user's token (optional)
+ *         version:
+ *           type: number
+ *           description: The version of the user
+ *         isActive:
+ *           type: boolean
+ *           description: Whether the user is active
  *       required:
- *         - id
- *         - name
+ *         - version
+ *         - _id
+ *         - firstName
  *         - email
+ *         - role
+ *         - isBlocked
+ *         - loginType
+ *         - isActive
  */
-export interface User {
-  id: number;
-  name: string;
+export interface User extends CommonTypes {
+  _id: string;
+  firstName: string;
+  lastName?: string;
   email: string;
-  password: string;
+  phone?: {
+    dialCode: string;
+    number: string;
+  };
+  password?: string;
   role: string;
+  isBlocked: boolean;
+  loginType: 'password' | 'google';
+  token?: string;
 }
 
 /**
@@ -52,3 +100,13 @@ export interface User {
  *         - password
  */
 export type CreateUserRequest = z.infer<typeof CreateUserRequestSchema>;
+
+interface CommonTypes {
+  version?: number;
+  isActive?: boolean;
+  createdBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  updatedBy?: string;
+  metaStatus?: string;
+}

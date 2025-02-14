@@ -2,15 +2,15 @@ import { NextFunction, Request, Response } from 'express';
 import { ZodIssue, ZodSchema } from 'zod';
 import statusCodes from '@core/statusCodes';
 
-const formatErrorMessage = (errors: ZodIssue[]) => {
-  return errors?.map((error: ZodIssue) => {
+export const formatErrorMessage = (errors: ZodIssue[]) => {
+  return errors.map((error: ZodIssue) => {
     return `Error in field (${error.path.join('.')}): ${error.message}`;
   });
 };
 
 const inspect =
   (schema: ZodSchema) => (req: Request, res: Response, next: NextFunction) => {
-    const result = schema.safeParse(req?.body || {});
+    const result = schema.safeParse(req.body ?? {});
 
     if (!result.success) {
       const error_description = formatErrorMessage(result.error.errors);

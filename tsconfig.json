@@ -10,6 +10,7 @@
       "@server/*": ["src/bin/*"],
       "@controller/*": ["./src/controller/*"],
       "@middleware/*": ["./src/middleware/*"],
+      "@persistence/*": ["./src/persistence/*"],
       "@core/*": ["./src/core/*"],
       "@service/*": ["./src/service/*"],
       "@statusCodes": ["./src/core/statusCodes"],

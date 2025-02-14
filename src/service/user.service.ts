@@ -1,4 +1,6 @@
 import { CreateUserRequest, User } from '@core/types';
+import { randomUUID } from 'crypto';
+import userRepository from '@persistence/repositories/user.repository';
 
 /**
  * Registers a new user with the provided user creation request.
@@ -9,14 +11,16 @@ import { CreateUserRequest, User } from '@core/types';
 const registerUser: (
   createUserRequest: CreateUserRequest
 ) => Promise<User> = async (createUserRequest) => {
-  const dummyUser: User = {
-    id: 1,
-    name: createUserRequest.name,
+  const user: User = {
+    version: 1,
+    _id: randomUUID(),
+    firstName: createUserRequest.name,
     email: createUserRequest.email,
-    password: createUserRequest.password,
-    role: 'user',
+    role: 'CUSTOMER',
+    isBlocked: false,
+    loginType: 'password',
   };
-  return dummyUser;
+  return await userRepository.createUser(user);
 };
 
 export default {

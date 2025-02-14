@@ -12,6 +12,7 @@ module.exports = {
     '^@server/(.*)$': '<rootDir>/src/bin/$1',
     '^@controller/(.*)$': '<rootDir>/src/controller/$1',
     '^@middleware/(.*)$': '<rootDir>/src/middleware/$1',
+    '^@persistence/(.*)$': '<rootDir>/src/persistence/$1',
     '^@core/(.*)$': '<rootDir>/src/core/$1',
     '^@service/(.*)$': '<rootDir>/src/service/$1',
     '^@statusCodes': '<rootDir>/src/core/statusCodes',

@@ -3,17 +3,17 @@ import { NextFunction, Request, RequestHandler, Response } from 'express';
 /**
  * Middleware to check if the user has the required permission.
  *
- * @param {string} permisson - The permission string to check against the user's permissions.
+ * @param {string} permission - The permission string to check against the user's permissions.
  * @returns {RequestHandler} - The middleware function to handle the permission validation.
  *
  * @throws {Error} - Throws an error if there is an issue during permission validation.
  */
-const hasPermission = (permisson: string): RequestHandler => {
+const hasPermission = (permission: string): RequestHandler => {
   return async (req: Request, res: Response, next: NextFunction) => {
     // TODO: Implement permission validation
-    const userPermissons = res.locals?.permisson;
+    const userPermissions = res.locals.permission;
 
-    const accessible = userPermissons.includes(permisson);
+    const accessible = userPermissions.includes(permission);
 
     if (accessible) {
       return next();
