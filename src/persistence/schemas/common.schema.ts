@@ -9,9 +9,9 @@ const commonFieldsSchema = new Schema(
     isActive: { type: Boolean, default: false },
     createdBy: { type: String },
     createdAt: { type: String, default: getCurrentTime() },
+    updatedBy: { type: String },
     updatedAt: { type: String, default: getCurrentTime() },
-    updatedBy: { type: String, default: getCurrentTime() },
-    metaStatus: { type: String, default: getCurrentTime() },
+    metaStatus: { type: String },
   },
   { _id: false }
 );

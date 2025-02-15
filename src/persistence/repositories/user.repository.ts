@@ -11,6 +11,18 @@ const createUser = async (user: User) => {
   return await new UserSchema(user).save() as User;
 };
 
+/**
+ * Checks if a user with the given email in the database.
+ *
+ * @param email - The email of the user to check.
+ * @returns {Promise<Boolean>} A promise that resolves to a boolean indicating whether the user exists.
+ */
+const isExistingUser = async (email: string) => {
+  const userExists = await UserSchema.exists({ email: { $eq: email } });
+  return userExists !== null;
+};
+
 export default {
   createUser,
+  isExistingUser,
 };

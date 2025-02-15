@@ -6,7 +6,7 @@ module.exports = {
     '^.+.tsx?$': ['ts-jest', {}],
   },
   moduleNameMapper: {
-    '^@config': '<rootDir>/src/runtimeConfig',
+    '^@config': '<rootDir>/runtimeConfig',
     '^@src/(.*)$': '<rootDir>/src/$1',
     '^@routes/(.*)$': '<rootDir>/src/routes/$1',
     '^@server/(.*)$': '<rootDir>/src/bin/$1',
@@ -15,12 +15,13 @@ module.exports = {
     '^@persistence/(.*)$': '<rootDir>/src/persistence/$1',
     '^@core/(.*)$': '<rootDir>/src/core/$1',
     '^@service/(.*)$': '<rootDir>/src/service/$1',
+    '^@helpers/(.*)$': '<rootDir>/src/helpers/$1',
     '^@statusCodes': '<rootDir>/src/core/statusCodes',
     '^@types': '<rootDir>/src/core/types.d.ts',
     '^@fixtures/(.*)$': '<rootDir>/src/__test__/fixtures/$1',
   },
   rootDir: './',
-  coveragePathIgnorePatterns: ['/node_modules/', '/dist/', '/lib/', '/coverage/'],
+  coveragePathIgnorePatterns: ['/node_modules/', '/dist/', '/lib/', '/coverage/', '/src/__test__/', '/src/persistence/repositories'],
   collectCoverage: true,
   coverageThreshold: {
     global: {

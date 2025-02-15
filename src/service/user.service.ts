@@ -1,26 +1,57 @@
-import { CreateUserRequest, User } from '@core/types';
-import { randomUUID } from 'crypto';
+import { CreateUserRequest, Token, User } from '@core/types';
+import {
+  createUserAccessTokenPayload,
+  createUserRefreshTokenPayload,
+} from '@src/auth/payload.generator';
+import Conflict from '@src/errorBoundary/custom/conflict.error';
+import Logger from '@core/logger';
+import TokenTypes from '@core/enums/token.types';
+import { generateToken } from '@core/utils/jwt.utils';
+import userHelper from '@helpers/user.helper';
 import userRepository from '@persistence/repositories/user.repository';
+
+/**
+ * Checks if a user with the given email exists in the repository.
+ *
+ * @param email - The email address of the user to check.
+ * @param active - Optional. If provided, checks if the user is active or not.
+ * @returns A promise that resolves to a boolean indicating whether the user exists.
+ */
+const isExistingUser: (email: string) => Promise<boolean> = async (email) =>
+  userRepository.isExistingUser(email);
 
 /**
  * Registers a new user with the provided user creation request.
  *
  * @param createUserRequest - The request object containing user creation details.
- * @returns {User} - A promise that resolves to the created user object.
+ * @returns {Token} - A promise that resolves to the created token object.
  */
 const registerUser: (
   createUserRequest: CreateUserRequest
-) => Promise<User> = async (createUserRequest) => {
-  const user: User = {
-    version: 1,
-    _id: randomUUID(),
-    firstName: createUserRequest.name,
-    email: createUserRequest.email,
-    role: 'CUSTOMER',
-    isBlocked: false,
-    loginType: 'password',
+) => Promise<Token> = async (createUserRequest) => {
+  
+  if (await isExistingUser(createUserRequest.email)) {
+    Logger.error('User with the given email already exists');
+    throw new Conflict('User with the given email already exists');
+  }
+
+  const userRequest: User = await userHelper.convertToUserFromCreateUserRequest(
+    createUserRequest
+  );
+
+  const user = await userRepository.createUser(userRequest);
+  Logger.info('User {} created successfully', user._id);
+
+  return {
+    accessToken: generateToken(
+      createUserAccessTokenPayload(user),
+      TokenTypes.accessToken
+    ),
+    refreshToken: generateToken(
+      createUserRefreshTokenPayload(user),
+      TokenTypes.refreshToken
+    ),
   };
-  return await userRepository.createUser(user);
 };
 
 export default {

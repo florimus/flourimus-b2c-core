@@ -11,6 +11,12 @@ jobs:
     name: 🧪 Run Tests
     runs-on: ubuntu-latest
 
+    env:
+      SALT_ROUNDS: ${{ secrets.SALT_ROUNDS }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      JWT_ACCESS_TOKEN_EXPIRES_IN: ${{ secrets.JWT_ACCESS_TOKEN_EXPIRES_IN }}
+      JWT_REFRESH_TOKEN_EXPIRES_IN: ${{ secrets.JWT_REFRESH_TOKEN_EXPIRES_IN }}
+
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v3

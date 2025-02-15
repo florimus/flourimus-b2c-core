@@ -1,4 +1,5 @@
 import { CreateUserRequestSchema } from '@core/schemas/user.schema';
+import TokenTypes from '@core/enums/token.types';
 import { z } from 'zod';
 
 /**
@@ -100,6 +101,40 @@ export interface User extends CommonTypes {
  *         - password
  */
 export type CreateUserRequest = z.infer<typeof CreateUserRequestSchema>;
+
+export interface AccessTokenPayload {
+  _id: string;
+  email: string;
+  role: string;
+  type: TokenTypes.accessToken;
+} 
+
+export interface RefreshTokenPayload {
+  _id: string;
+  type: TokenTypes.refreshToken;
+} 
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Token:
+ *       type: object
+ *       properties:
+ *         accessToken:
+ *           type: string
+ *           description: The access token
+ *         refreshToken:
+ *           type: string
+ *           description: The refresh token
+ *       required:
+ *         - accessToken
+ *         - refreshToken
+ */
+export interface Token {
+  accessToken: string;
+  refreshToken: string;
+}
 
 interface CommonTypes {
   version?: number;

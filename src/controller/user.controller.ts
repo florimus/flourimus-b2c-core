@@ -25,7 +25,7 @@ import userService from '@src/service/user.service';
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/User'
+ *               $ref: '#/components/schemas/Token'
  *       400:
  *         description: Invalid request body
  *         content:
@@ -37,6 +37,6 @@ import userService from '@src/service/user.service';
  *               info: []
  */
 export const registerUser = async (req: Request, res: Response) => {
-  Logger.info('Received request to register a new user: {}', JSON.stringify(req.body));
+  Logger.info('Received request to register a new user');
   res.status(status.CREATED).json(await userService.registerUser(req.body));
 };
