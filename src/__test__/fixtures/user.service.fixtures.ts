@@ -1,4 +1,4 @@
-import { CreateUserRequest, User } from '@core/types';
+import { CreateSSOUserRequest, CreateUserRequest, User } from '@core/types';
 import roles from '@core/enums/user.roles';
 
 export const mockCreateUserRequest: CreateUserRequest ={
@@ -17,4 +17,8 @@ export const mockCreateUserResponse: User = {
     loginType: 'password',
     isActive: true,
     version: 1,
+};
+
+export const mockCreateSSOUserRequest: CreateSSOUserRequest = {
+    token: 'token',
 };

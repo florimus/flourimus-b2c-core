@@ -24,6 +24,37 @@ const convertToUserFromCreateUserRequest = async (
   isActive: true,
 });
 
+/**
+ * Extracts the username from an email address.
+ *
+ * @param email - The email address to extract the username from.
+ * @returns The username part of the email address.
+ */
+const getUsernameFromEmail = (email: string): string => {
+  return email.split('@')[0];
+};
+
+/**
+ * Converts an email address to a User object.
+ *
+ * @param email - The email address to convert.
+ * @returns {User} A User object with the provided email and default values for other properties.
+ */
+const convertToUserFromEmail = (
+  email: string
+): User => ({
+  version: 1,
+  _id: randomUUID(),
+  firstName: getUsernameFromEmail(email),
+  lastName: '',
+  email,
+  role: roles.CUSTOMER,
+  isBlocked: false,
+  loginType: 'google',
+  isActive: true,
+});
+
 export default {
   convertToUserFromCreateUserRequest,
+  convertToUserFromEmail,
 };
