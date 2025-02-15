@@ -5,6 +5,7 @@ import {
 } from '@fixtures/user.service.fixtures';
 
 import Conflict from '@src/errorBoundary/custom/conflict.error';
+import UnAuthorized from '@src/errorBoundary/custom/unauthorized.error';
 import decryptGoogleToken from '@src/auth/googleTokenValidator';
 import userRepository from '@persistence/repositories/user.repository';
 import userService from '@service/user.service';
@@ -138,5 +139,46 @@ describe('registerSSOUser', () => {
 
     await expect(userService.registerSSOUser(mockCreateSSOUserRequest))
       .rejects.toThrow(Conflict);
+  });
+});
+
+describe('loginSSOUser', () => {
+  it('should return a successful response', async () => {
+    (decryptGoogleToken as jest.Mock).mockResolvedValue('test@example.com');
+    (userRepository.findUserByEmail as jest.Mock).mockResolvedValue(mockCreateUserResponse);
+
+    const response = await userService.loginSSOUser({ token: 'valid-token' });
+    expect(response).toBeDefined();
+  });
+
+  it('should return an access token', async () => {
+    (decryptGoogleToken as jest.Mock).mockResolvedValue('test@example.com');
+    (userRepository.findUserByEmail as jest.Mock).mockResolvedValue(mockCreateUserResponse);
+
+    const response = await userService.loginSSOUser({ token: 'valid-token' });
+    expect(response).toHaveProperty('accessToken');
+  });
+
+  it('should return a refresh token', async () => {
+    (decryptGoogleToken as jest.Mock).mockResolvedValue('test@example.com');
+    (userRepository.findUserByEmail as jest.Mock).mockResolvedValue(mockCreateUserResponse);
+
+    const response = await userService.loginSSOUser({ token: 'valid-token' });
+    expect(response).toHaveProperty('refreshToken');
+  });
+
+  it('should return a 409 error when the Google token decryption fails', async () => {
+    (decryptGoogleToken as jest.Mock).mockResolvedValue(null);
+
+    await expect(userService.loginSSOUser({ token: 'invalid-token' }))
+      .rejects.toThrow(Conflict);
+  });
+
+  it('should return a 401 error when the user does not exist', async () => {
+    (decryptGoogleToken as jest.Mock).mockResolvedValue('test@example.com');
+    (userRepository.findUserByEmail as jest.Mock).mockResolvedValue(null);
+
+    await expect(userService.loginSSOUser({ token: 'valid-token' }))
+      .rejects.toThrow(UnAuthorized);
   });
 });
