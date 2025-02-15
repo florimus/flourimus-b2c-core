@@ -1,10 +1,19 @@
-import { CreateUserRequestSchema } from '@core/schemas/user.schema';
+import {
+  CreateSSOUserRequestSchema,
+  CreateUserRequestSchema,
+} from '@core/schemas/user.schema';
+import { registerSSOUser, registerUser } from '@controller/user.controller';
 import createRouter from '@core/router';
 import inspect from '@middleware/requestInspect';
-import { registerUser } from '@controller/user.controller';
 
 const router = createRouter();
 
-router.post('/', inspect(CreateUserRequestSchema), registerUser);
+router.post('/register', inspect(CreateUserRequestSchema), registerUser);
+
+router.post(
+  '/register-sso',
+  inspect(CreateSSOUserRequestSchema),
+  registerSSOUser
+);
 
 export default router.getRouter();

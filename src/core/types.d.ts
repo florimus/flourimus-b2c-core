@@ -1,4 +1,4 @@
-import { CreateUserRequestSchema } from '@core/schemas/user.schema';
+import { CreateSSOUserRequestSchema, CreateUserRequestSchema } from '@core/schemas/user.schema';
 import TokenTypes from '@core/enums/token.types';
 import { z } from 'zod';
 
@@ -135,6 +135,21 @@ export interface Token {
   accessToken: string;
   refreshToken: string;
 }
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     CreateSSOUserRequest:
+ *       type: object
+ *       properties:
+ *         token:
+ *           type: string
+ *           description: google-auth-token
+ *       required:
+ *         - token
+ */
+export type CreateSSOUserRequest = z.infer<typeof CreateSSOUserRequestSchema>;
 
 interface CommonTypes {
   version?: number;

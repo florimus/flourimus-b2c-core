@@ -32,3 +32,7 @@ export const CreateUserRequestSchema = z
       });
     }
   });
+
+export const CreateSSOUserRequestSchema = z.object({
+  token: z.string({ required_error: 'Token is required' }),
+});
