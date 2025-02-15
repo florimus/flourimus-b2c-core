@@ -45,3 +45,28 @@ describe('convertToUserFromCreateUserRequest', () => {
     expect(randomUUID).toHaveBeenCalled();
   });
 });
+
+describe('convertToUserFromEmail', () => {
+  it('should convert email to User', () => {
+    const email = 'john.doe@example.com';
+    const mockUUID = '123e4567-e89b-12d3-a456-426614174000';
+    (randomUUID as jest.Mock).mockReturnValue(mockUUID);
+
+    const expectedUser: User = {
+      version: 1,
+      _id: mockUUID,
+      firstName: 'john.doe',
+      lastName: '',
+      email,
+      role: roles.CUSTOMER,
+      isBlocked: false,
+      loginType: 'google',
+      isActive: true,
+    };
+
+    const result = userHelper.convertToUserFromEmail(email);
+
+    expect(result).toEqual(expectedUser);
+    expect(randomUUID).toHaveBeenCalled();
+  });
+});

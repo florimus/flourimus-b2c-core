@@ -1,7 +1,7 @@
 import { OAuth2Client } from 'google-auth-library';
 import runtimeConfig from '@config';
 
-const GOOGLE_CLIENT_ID = runtimeConfig.GOOGLE_CLIENT_ID || '';
+const GOOGLE_CLIENT_ID = runtimeConfig.GOOGLE_CLIENT_ID!;
 
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
