@@ -1,0 +1,23 @@
+import { CreateUserRequest, User } from '@core/types';
+import { hashPassword } from '@core/utils/password.utils';
+import { randomUUID } from 'crypto';
+import roles from '@core/enums/user.roles';
+
+const convertToUserFromCreateUserRequest = async (createUserRequest: CreateUserRequest): Promise<User> => {
+  return {
+    version: 1,
+    _id: randomUUID(),
+    firstName: createUserRequest.firstName,
+    lastName: createUserRequest.lastName,
+    email: createUserRequest.email,
+    password: await hashPassword(createUserRequest.password),
+    role: roles.CUSTOMER,
+    isBlocked: false,
+    loginType: 'password',
+    isActive: true,
+  };
+};
+
+export default {
+  convertToUserFromCreateUserRequest,
+};

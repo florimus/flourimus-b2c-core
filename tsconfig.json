@@ -13,6 +13,7 @@
       "@persistence/*": ["./src/persistence/*"],
       "@core/*": ["./src/core/*"],
       "@service/*": ["./src/service/*"],
+      "@helpers/*": ["./src/helpers/*"],
       "@statusCodes": ["./src/core/statusCodes"],
       "@fixtures/*": ["./src/__test__/fixtures/*"],
       "@types": ["./src/core/types.d.ts"],

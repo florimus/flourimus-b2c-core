@@ -1,3 +1,5 @@
+import statusCodes from '@core/statusCodes';
+
 /**
  * Represents a conflict error with HTTP status code 409.
  * This error is typically used to indicate that a request could not be processed
@@ -6,7 +8,7 @@
  * @extends {Error}
  */
 class Conflict extends Error {
-    public status: number = 409;
+    public status: number = statusCodes.CONFLICT;
   constructor(
     message: string,
   ) {
