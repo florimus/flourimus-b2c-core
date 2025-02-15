@@ -2,7 +2,8 @@ import { CreateUserRequest, User } from '@core/types';
 import roles from '@core/enums/user.roles';
 
 export const mockCreateUserRequest: CreateUserRequest ={
-    name: 'john',
+    firstName: 'john',
+    lastName: 'david',
     email: 'john.david@example.com',
     password: 'john@123'
 };

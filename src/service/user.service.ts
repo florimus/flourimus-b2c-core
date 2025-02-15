@@ -1,6 +1,20 @@
 import { CreateUserRequest, User } from '@core/types';
+import Conflict from '@src/errorBoundary/custom/conflict.error';
 import { randomUUID } from 'crypto';
+import roles from '@core/enums/user.roles';
 import userRepository from '@persistence/repositories/user.repository';
+
+/**
+ * Checks if a user with the given email exists in the repository.
+ *
+ * @param email - The email address of the user to check.
+ * @param active - Optional. If provided, checks if the user is active or not.
+ * @returns A promise that resolves to a boolean indicating whether the user exists.
+ */
+const isExistingUser: (
+  email: string,
+  active?: boolean
+) => Promise<boolean> = async (email, active) => userRepository.isExistingUser(email, active);
 
 /**
  * Registers a new user with the provided user creation request.
@@ -11,14 +25,22 @@ import userRepository from '@persistence/repositories/user.repository';
 const registerUser: (
   createUserRequest: CreateUserRequest
 ) => Promise<User> = async (createUserRequest) => {
+
+  if (await isExistingUser(createUserRequest.email)) {
+    throw new Conflict('User with the given email already exists');
+  }
+
   const user: User = {
     version: 1,
     _id: randomUUID(),
-    firstName: createUserRequest.name,
+    firstName: createUserRequest.firstName,
+    lastName: createUserRequest.lastName,
     email: createUserRequest.email,
-    role: 'CUSTOMER',
+    password: createUserRequest.password,
+    role: roles.CUSTOMER,
     isBlocked: false,
     loginType: 'password',
+    isActive: true,
   };
   return await userRepository.createUser(user);
 };
