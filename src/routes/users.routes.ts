@@ -1,8 +1,13 @@
 import {
   CreateSSOUserRequestSchema,
   CreateUserRequestSchema,
+  LoginSSOUserRequestSchema,
 } from '@core/schemas/user.schema';
-import { registerSSOUser, registerUser } from '@controller/user.controller';
+import {
+  loginSSOUser,
+  registerSSOUser,
+  registerUser,
+} from '@controller/user.controller';
 import createRouter from '@core/router';
 import inspect from '@middleware/requestInspect';
 
@@ -15,5 +20,7 @@ router.post(
   inspect(CreateSSOUserRequestSchema),
   registerSSOUser
 );
+
+router.post('/login-sso', inspect(LoginSSOUserRequestSchema), loginSSOUser);
 
 export default router.getRouter();

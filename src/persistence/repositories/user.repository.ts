@@ -8,7 +8,7 @@ import UserSchema from '@persistence/schemas/user.schema';
  * @returns {Promise<User>} A promise that resolves to the created user.
  */
 const createUser = async (user: User) => {
-  return await new UserSchema(user).save() as User;
+  return (await new UserSchema(user).save()) as User;
 };
 
 /**
@@ -22,7 +22,18 @@ const isExistingUser = async (email: string) => {
   return userExists !== null;
 };
 
+/**
+ * Finds a user by their email address.
+ *
+ * @param email - The email address of the user to find.
+ * @returns {Promise<User>} A promise that resolves to the user document if found, or null if not found.
+ */
+const findUserByEmail = async (email: string) => {
+  return (await UserSchema.findOne({ email: { $eq: email } })) as User;
+};
+
 export default {
   createUser,
   isExistingUser,
+  findUserByEmail,
 };
