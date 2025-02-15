@@ -1,6 +1,7 @@
 import {
   CreateSSOUserRequest,
   CreateUserRequest,
+  LoginSSOUserRequest,
   Token,
   User,
 } from '@core/types';
@@ -11,6 +12,7 @@ import {
 import Conflict from '@src/errorBoundary/custom/conflict.error';
 import Logger from '@core/logger';
 import TokenTypes from '@core/enums/token.types';
+import UnAuthorized from '@src/errorBoundary/custom/unauthorized.error';
 import decryptGoogleToken from '@src/auth/googleTokenValidator';
 import { generateToken } from '@core/utils/jwt.utils';
 import userHelper from '@helpers/user.helper';
@@ -21,10 +23,20 @@ import userRepository from '@persistence/repositories/user.repository';
  *
  * @param email - The email address of the user to check.
  * @param active - Optional. If provided, checks if the user is active or not.
- * @returns A promise that resolves to a boolean indicating whether the user exists.
+ * @returns {Promise<boolean>} A promise that resolves to a boolean indicating whether the user exists.
  */
 const isExistingUser: (email: string) => Promise<boolean> = async (email) =>
   userRepository.isExistingUser(email);
+
+/**
+ * Finds a user by their email address.
+ *
+ * @param email - The email address of the user to find.
+ * @returns {Promise<User | null>} A promise that resolves to the user if found, or null if not found.
+ */
+const findUserByEmail: (email: string) => Promise<User | null> = async (
+  email
+) => userRepository.findUserByEmail(email);
 
 /**
  * Registers a new user with the provided user creation request.
@@ -61,10 +73,10 @@ const registerUser: (
 
 /**
  * Registers a new SSO (Single Sign-On) user using the provided SSO user request.
- * 
+ *
  * @param {CreateSSOUserRequest} createSSOUserRequest - The request object containing the SSO user details.
  * @returns {Promise<{ accessToken: string, refreshToken: string }>} - An object containing the generated access and refresh tokens.
- * 
+ *
  * @throws {Conflict} - Throws a Conflict error if the Google token decryption fails or if a user with the given email already exists.
  */
 const registerSSOUser = async (createSSOUserRequest: CreateSSOUserRequest) => {
@@ -97,7 +109,44 @@ const registerSSOUser = async (createSSOUserRequest: CreateSSOUserRequest) => {
   };
 };
 
+/**
+ * Logs in a user using Single Sign-On (SSO) with a Google token.
+ *
+ * @param {LoginSSOUserRequest} LoginSSOUser - The request object containing the Google token.
+ * @returns {Promise<{ accessToken: string, refreshToken: string }>} An object containing the access token and refresh token.
+ * @throws {Conflict} If the Google token decryption fails or if the user does not exist.
+ */
+const loginSSOUser = async (LoginSSOUser: LoginSSOUserRequest) => {
+  const email = await decryptGoogleToken(LoginSSOUser.token);
+
+  if (!email) {
+    Logger.error('Failed to decrypt the Google token');
+    throw new Conflict('Failed to decrypt the Google token');
+  }
+
+  const user = await findUserByEmail(email);
+
+  if (!user) {
+    Logger.error('User with the given email not exists');
+    throw new UnAuthorized('User with the given not exists');
+  }
+
+  Logger.info('User {} fetched successfully', user._id);
+
+  return {
+    accessToken: generateToken(
+      createUserAccessTokenPayload(user),
+      TokenTypes.accessToken
+    ),
+    refreshToken: generateToken(
+      createUserRefreshTokenPayload(user),
+      TokenTypes.refreshToken
+    ),
+  };
+};
+
 export default {
   registerUser,
   registerSSOUser,
+  loginSSOUser,
 };

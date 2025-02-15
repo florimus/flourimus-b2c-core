@@ -36,3 +36,7 @@ export const CreateUserRequestSchema = z
 export const CreateSSOUserRequestSchema = z.object({
   token: z.string({ required_error: 'Token is required' }),
 });
+
+export const LoginSSOUserRequestSchema = z.object({
+  token: z.string({ required_error: 'Token is required' }),
+});
