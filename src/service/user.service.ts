@@ -1,5 +1,6 @@
 import { CreateUserRequest, User } from '@core/types';
 import Conflict from '@src/errorBoundary/custom/conflict.error';
+import { hashPassword } from '@core/utils/password.utils';
 import { randomUUID } from 'crypto';
 import roles from '@core/enums/user.roles';
 import userRepository from '@persistence/repositories/user.repository';
@@ -13,8 +14,7 @@ import userRepository from '@persistence/repositories/user.repository';
  */
 const isExistingUser: (
   email: string,
-  active?: boolean
-) => Promise<boolean> = async (email, active) => userRepository.isExistingUser(email, active);
+) => Promise<boolean> = async (email) => userRepository.isExistingUser(email);
 
 /**
  * Registers a new user with the provided user creation request.
@@ -36,7 +36,7 @@ const registerUser: (
     firstName: createUserRequest.firstName,
     lastName: createUserRequest.lastName,
     email: createUserRequest.email,
-    password: createUserRequest.password,
+    password: await hashPassword(createUserRequest.password),
     role: roles.CUSTOMER,
     isBlocked: false,
     loginType: 'password',

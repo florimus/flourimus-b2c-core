@@ -12,14 +12,13 @@ const createUser = async (user: User) => {
 };
 
 /**
- * Checks if a user with the given email and active status exists in the database.
+ * Checks if a user with the given email in the database.
  *
  * @param email - The email of the user to check.
- * @param isActive - The active status of the user. Defaults to true.
  * @returns {Promise<Boolean>} A promise that resolves to a boolean indicating whether the user exists.
  */
-const isExistingUser = async (email: string, isActive: boolean = true) => {
-  const userExists = await UserSchema.exists({ email, isActive });
+const isExistingUser = async (email: string) => {
+  const userExists = await UserSchema.exists({ email });
   return userExists !== null;
 };
 
