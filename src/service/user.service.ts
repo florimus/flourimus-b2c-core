@@ -4,6 +4,7 @@ import {
   createUserRefreshTokenPayload,
 } from '@src/auth/payload.generator';
 import Conflict from '@src/errorBoundary/custom/conflict.error';
+import Logger from '@core/logger';
 import TokenTypes from '@core/enums/token.types';
 import { generateToken } from '@core/utils/jwt.utils';
 import userHelper from '@helpers/user.helper';
@@ -28,7 +29,9 @@ const isExistingUser: (email: string) => Promise<boolean> = async (email) =>
 const registerUser: (
   createUserRequest: CreateUserRequest
 ) => Promise<Token> = async (createUserRequest) => {
+  
   if (await isExistingUser(createUserRequest.email)) {
+    Logger.error('User with the given email already exists');
     throw new Conflict('User with the given email already exists');
   }
 
@@ -37,6 +40,7 @@ const registerUser: (
   );
 
   const user = await userRepository.createUser(userRequest);
+  Logger.info('User {} created successfully', user._id);
 
   return {
     accessToken: generateToken(

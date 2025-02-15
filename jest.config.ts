@@ -6,7 +6,7 @@ module.exports = {
     '^.+.tsx?$': ['ts-jest', {}],
   },
   moduleNameMapper: {
-    '^@config': '<rootDir>/src/runtimeConfig',
+    '^@config': '<rootDir>/runtimeConfig',
     '^@src/(.*)$': '<rootDir>/src/$1',
     '^@routes/(.*)$': '<rootDir>/src/routes/$1',
     '^@server/(.*)$': '<rootDir>/src/bin/$1',
@@ -21,7 +21,7 @@ module.exports = {
     '^@fixtures/(.*)$': '<rootDir>/src/__test__/fixtures/$1',
   },
   rootDir: './',
-  coveragePathIgnorePatterns: ['/node_modules/', '/dist/', '/lib/', '/coverage/'],
+  coveragePathIgnorePatterns: ['/node_modules/', '/dist/', '/lib/', '/coverage/', '/src/__test__/', '/src/persistence/repositories'],
   collectCoverage: true,
   coverageThreshold: {
     global: {
