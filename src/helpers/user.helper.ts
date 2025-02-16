@@ -1,4 +1,4 @@
-import { CreateUserRequest, User } from '@core/types';
+import { CreateUserRequest, User, UserView } from '@core/types';
 import { hashPassword } from '@core/utils/password.utils';
 import { randomUUID } from 'crypto';
 import roles from '@core/enums/user.roles';
@@ -54,7 +54,34 @@ const convertToUserFromEmail = (
   isActive: true,
 });
 
+/**
+ * Converts a User object to a UserView object.
+ *
+ * @param user - The User object to convert.
+ * @returns {UserView} A UserView object with selected properties from the User object.
+ */
+const convertToUserViewFromUser = (user: User): UserView => {
+  return {
+    _id: user._id,
+    version: user.version,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    role: user.role,
+    isBlocked: user.isBlocked,
+    loginType: user.loginType,
+    isActive: user.isActive,
+    createdAt: user.createdAt,
+    createdBy: user.createdBy,
+    metaStatus: user.metaStatus,
+    phone: user.phone,
+    updatedAt: user.updatedAt,
+    updatedBy: user.updatedBy,
+  };
+};
+
 export default {
   convertToUserFromCreateUserRequest,
   convertToUserFromEmail,
+  convertToUserViewFromUser
 };

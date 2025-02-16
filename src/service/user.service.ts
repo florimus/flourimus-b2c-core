@@ -194,9 +194,23 @@ const loginUser = async (loginUser: LoginUserRequest) => {
   throw new UnAuthorized('Password not matched');
 };
 
+const myInfo = async (email: string) => {
+  const user = await findUserByEmail(email);
+
+  if (!user) {
+    Logger.error('User with the given email not exists');
+    throw new UnAuthorized('User with the given not exists');
+  }
+
+  Logger.info('User {} fetched successfully', user._id);
+
+  return userHelper.convertToUserViewFromUser(user);
+};
+
 export default {
   registerUser,
   registerSSOUser,
   loginSSOUser,
   loginUser,
+  myInfo
 };
