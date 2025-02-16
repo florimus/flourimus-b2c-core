@@ -185,6 +185,68 @@ export type LoginSSOUserRequest = z.infer<typeof LoginSSOUserRequestSchema>;
  */
 export type LoginUserRequest = z.infer<typeof LoginUserRequestSchema>;
 
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     UserView:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: The user ID
+ *         firstName:
+ *           type: string
+ *           description: The user's first name
+ *         lastName:
+ *           type: string
+ *           description: The user's last name (optional)
+ *         email:
+ *           type: string
+ *           description: The user's email
+ *         phone:
+ *           type: object
+ *           properties:
+ *             dialCode:
+ *               type: string
+ *               description: The phone dial code
+ *             number:
+ *               type: string
+ *               description: The phone number
+ *           description: The user's phone number (optional)
+ *         role:
+ *           type: string
+ *           description: The user's role
+ *         isBlocked:
+ *           type: boolean
+ *           description: Whether the user is blocked
+ *         loginType:
+ *           type: string
+ *           enum: [password, google]
+ *           description: The login type
+ *       required:
+ *         - _id
+ *         - firstName
+ *         - email
+ *         - role
+ *         - isBlocked
+ *         - loginType
+ */
+export interface UserView extends CommonTypes {
+  _id: string;
+  firstName: string;
+  lastName?: string;
+  email: string;
+  phone?: {
+    dialCode: string;
+    number: string;
+  };
+  role: string;
+  isBlocked: boolean;
+  loginType: 'password' | 'google';
+}
+
 interface CommonTypes {
   version?: number;
   isActive?: boolean;

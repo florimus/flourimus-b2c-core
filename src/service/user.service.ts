@@ -194,9 +194,30 @@ const loginUser = async (loginUser: LoginUserRequest) => {
   throw new UnAuthorized('Password not matched');
 };
 
+/**
+ * Retrieves user information based on the provided email.
+ *
+ * @param email - The email address of the user to retrieve.
+ * @returns The user information converted to a user view.
+ * @throws {UnAuthorized} If no user is found with the given email.
+ */
+const myInfo = async (email: string) => {
+  const user = await findUserByEmail(email);
+
+  if (!user) {
+    Logger.error('User with the given email not exists');
+    throw new UnAuthorized('User with the given not exists');
+  }
+
+  Logger.info('User {} fetched successfully', user._id);
+
+  return userHelper.convertToUserViewFromUser(user);
+};
+
 export default {
   registerUser,
   registerSSOUser,
   loginSSOUser,
   loginUser,
+  myInfo
 };

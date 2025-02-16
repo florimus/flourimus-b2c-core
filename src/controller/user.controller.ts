@@ -166,3 +166,34 @@ export const loginUser = async (req: Request, res: Response) => {
   Logger.info('Received request to login a user');
   res.status(status.OK).json(await userService.loginUser(req.body));
 };
+
+/**
+ * @swagger
+ *
+ * /users/my-info:
+ *   get:
+ *     summary: Get my info
+ *     description: Retrieve information about the authenticated user.
+ *     tags:
+ *       - User APis
+ *     responses:
+ *       200:
+ *         description: The authenticated user's information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UserView'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             type: object
+ *             properties:
+ *               message: "unauthorized"
+ *               statusCode: 401
+ *               info: []
+ */
+export const myInfo = async (_req: Request, res: Response) => {
+  Logger.info('Received request to get my info');
+  res.status(status.OK).json(await userService.myInfo(res.locals.email));
+};
