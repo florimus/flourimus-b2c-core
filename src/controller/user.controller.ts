@@ -122,3 +122,47 @@ export const loginSSOUser = async (req: Request, res: Response) => {
   Logger.info('Received request to login a SSO user');
   res.status(status.OK).json(await userService.loginSSOUser(req.body));
 };
+
+/**
+ * @swagger
+ *
+ * /users/login:
+ *   post:
+ *     summary: Login user
+ *     description: Login user to the b2c platform.
+ *     tags:
+ *       - User APis
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 description: User's username
+ *               password:
+ *                 type: string
+ *                 description: User's password
+ *     responses:
+ *       200:
+ *         description: The logged in user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Token'
+ *       400:
+ *         description: Invalid request body
+ *         content:
+ *           application/json:
+ *             type: object
+ *             properties:
+ *               message: "invalid_request_body"
+ *               statusCode: 400
+ *               info: []
+ */
+export const loginUser = async (req: Request, res: Response) => {
+  Logger.info('Received request to login a user');
+  res.status(status.OK).json(await userService.loginUser(req.body));
+};

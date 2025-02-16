@@ -40,3 +40,12 @@ export const CreateSSOUserRequestSchema = z.object({
 export const LoginSSOUserRequestSchema = z.object({
   token: z.string({ required_error: 'Token is required' }),
 });
+
+export const LoginUserRequestSchema = z.object({
+  email: z
+    .string({ required_error: 'Email is required' })
+    .email('Invalid email format'),
+  password: z
+    .string({ required_error: 'password is required' })
+    .min(8, 'Password must be at least 8 characters long'),
+});
