@@ -29,6 +29,13 @@ export const generateToken = (
   });
 };
 
+/**
+ * Validates a given JWT token.
+ *
+ * @param token - The JWT token to validate.
+ * @returns The decoded token if valid.
+ * @throws {UnAuthorized} If the token is expired or invalid.
+ */
 export const validateToken = (token: string) => {
   try {
     return jwt.verify(token, config.JWT_SECRET!);
