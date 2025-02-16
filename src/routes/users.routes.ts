@@ -2,9 +2,11 @@ import {
   CreateSSOUserRequestSchema,
   CreateUserRequestSchema,
   LoginSSOUserRequestSchema,
+  LoginUserRequestSchema,
 } from '@core/schemas/user.schema';
 import {
   loginSSOUser,
+  loginUser,
   registerSSOUser,
   registerUser,
 } from '@controller/user.controller';
@@ -22,5 +24,7 @@ router.post(
 );
 
 router.post('/login-sso', inspect(LoginSSOUserRequestSchema), loginSSOUser);
+
+router.post('/login', inspect(LoginUserRequestSchema), loginUser);
 
 export default router.getRouter();

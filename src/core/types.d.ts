@@ -1,4 +1,4 @@
-import { CreateSSOUserRequestSchema, CreateUserRequestSchema, LoginSSOUserRequestSchema } from '@core/schemas/user.schema';
+import { CreateSSOUserRequestSchema, CreateUserRequestSchema, LoginSSOUserRequestSchema, LoginUserRequestSchema } from '@core/schemas/user.schema';
 import TokenTypes from '@core/enums/token.types';
 import { z } from 'zod';
 
@@ -165,6 +165,25 @@ export type CreateSSOUserRequest = z.infer<typeof CreateSSOUserRequestSchema>;
  *         - token
  */
 export type LoginSSOUserRequest = z.infer<typeof LoginSSOUserRequestSchema>;
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     LoginUserRequest:
+ *       type: object
+ *       properties:
+ *         email:
+ *           type: string
+ *           description: email of account
+ *         password:
+ *           type: string
+ *           description: password of account
+ *       required:
+ *         - email
+ *         - password
+ */
+export type LoginUserRequest = z.infer<typeof LoginUserRequestSchema>;
 
 interface CommonTypes {
   version?: number;

@@ -2,6 +2,7 @@ import {
   CreateSSOUserRequest,
   CreateUserRequest,
   LoginSSOUserRequest,
+  LoginUserRequest,
   Token,
   User,
 } from '@core/types';
@@ -13,6 +14,7 @@ import Conflict from '@src/errorBoundary/custom/conflict.error';
 import Logger from '@core/logger';
 import TokenTypes from '@core/enums/token.types';
 import UnAuthorized from '@src/errorBoundary/custom/unauthorized.error';
+import { comparePassword } from '@core/utils/password.utils';
 import decryptGoogleToken from '@src/auth/googleTokenValidator';
 import { generateToken } from '@core/utils/jwt.utils';
 import userHelper from '@helpers/user.helper';
@@ -145,8 +147,56 @@ const loginSSOUser = async (LoginSSOUser: LoginSSOUserRequest) => {
   };
 };
 
+/**
+ * Logs in a user based on the provided login request.
+ *
+ * @param {LoginUserRequest} loginUser - The login request containing the user's email and password.
+ * @returns {Promise<{ accessToken: string, refreshToken: string }>} - An object containing the access token and refresh token if login is successful.
+ * @throws {UnAuthorized} - If the user with the given email does not exist or if the password is incorrect.
+ * @throws {Conflict} - If the user is registered with Google SSO and cannot log in with a password.
+ */
+const loginUser = async (loginUser: LoginUserRequest) => {
+  const user = await findUserByEmail(loginUser.email);
+
+  if (!user) {
+    Logger.error('User with the given email not exists');
+    throw new UnAuthorized('User with the given not exists');
+  }
+
+  if (user.loginType !== 'password') {
+    Logger.error('Google sso user found, cannot login with password strategy');
+    throw new Conflict(
+      'User registered with google SSO, please try with Google.'
+    );
+  }
+
+  Logger.info('User {} fetched successfully', user._id);
+
+  const isPasswordMatched = await comparePassword(
+    loginUser.password,
+    user.password!
+  );
+
+  if (isPasswordMatched) {
+    return {
+      accessToken: generateToken(
+        createUserAccessTokenPayload(user),
+        TokenTypes.accessToken
+      ),
+      refreshToken: generateToken(
+        createUserRefreshTokenPayload(user),
+        TokenTypes.refreshToken
+      ),
+    };
+  }
+  Logger.error('Password is incorrect');
+
+  throw new UnAuthorized('Password not matched');
+};
+
 export default {
   registerUser,
   registerSSOUser,
   loginSSOUser,
+  loginUser,
 };
