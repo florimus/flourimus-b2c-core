@@ -1,4 +1,9 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express';
+import permissionFile from '@src/auth/permissions.json';
+
+interface Permissions {
+  [key: string]: string[];
+}
 
 /**
  * Middleware to check if the user has the required permission.
@@ -9,14 +14,15 @@ import { NextFunction, Request, RequestHandler, Response } from 'express';
  * @throws {Error} - Throws an error if there is an issue during permission validation.
  */
 const hasPermission = (permission: string): RequestHandler => {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    // TODO: Implement permission validation
-    const userPermissions = res.locals.permission;
+  return async (_req: Request, res: Response, next: NextFunction) => {
 
-    const accessible = userPermissions.includes(permission);
-
-    if (accessible) {
-      return next();
+    if (res.locals.role) {
+      const allPermissions: Permissions = permissionFile;
+      const userPermissions: string[] = allPermissions[res.locals.role] || [];
+      const accessible = userPermissions.includes(permission);
+      if (accessible) {
+        return next();
+      }
     }
 
     res.status(403).json({
