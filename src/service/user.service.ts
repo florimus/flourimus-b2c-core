@@ -283,6 +283,31 @@ const userStatusUpdate = async (id?: string) => {
   };
 };
 
+/**
+ * Retrieves user information based on the provided user ID.
+ *
+ * @param {string} id - The ID of the user to retrieve.
+ * @throws {BadRequest} If the provided ID is not found.
+ * @throws {NotFound} If no user is found with the given ID.
+ * @returns {Promise<UserView>} The user information converted to a user view.
+ */
+const getUserInfo = async (id: string) => {
+  if (!id) {
+    throw new BadRequest('id not found');
+  }
+
+  const user = await findUserById(id);
+
+  if (!user) {
+    Logger.error('User with the given email not exists');
+    throw new NotFound('User with the given id not exists');
+  }
+
+  Logger.info('User {} fetched successfully', user._id);
+
+  return userHelper.convertToUserViewFromUser(user);
+};
+
 export default {
   registerUser,
   registerSSOUser,
@@ -290,4 +315,5 @@ export default {
   loginUser,
   myInfo,
   userStatusUpdate,
+  getUserInfo
 };

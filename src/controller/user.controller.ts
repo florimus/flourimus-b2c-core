@@ -231,3 +231,8 @@ export const userStatusUpdate = async (req: Request, res: Response) => {
   Logger.info('Received request to update user status');
   res.status(status.OK).json(await userService.userStatusUpdate(req.params.id));
 };
+
+export const getUserInfo = async (req: Request, res: Response) => {
+  Logger.info('Received request to view user info');
+  res.status(status.OK).json(await userService.getUserInfo(req.params.id));
+};
