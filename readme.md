@@ -16,7 +16,7 @@
   </a>
 </p>
 <h1 align="center">
-  <img src="https://github.com/user-attachments/assets/cc279557-8ff7-4919-90dc-2fcf8b2749e0" alt="image">
+  <img src="https://github.com/user-attachments/assets/bf266900-13b1-40c8-92c1-2b7c380110f5" alt="image">
 </h1>
 
 A comprehensive platform for building an E-Commerce platform
