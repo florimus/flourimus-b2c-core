@@ -378,3 +378,32 @@ describe('userStatusUpdate', () => {
     expect(response).toHaveProperty('version', 2);
   });
 });
+
+describe('getUserInfo', () => {
+  it('should return user information successfully', async () => {
+    (userRepository.findUserById as jest.Mock).mockResolvedValue(
+      mockCreateUserResponse
+    );
+    (userHelper.convertToUserViewFromUser as jest.Mock).mockReturnValue({
+      id: 'user-id',
+      email: 'test@example.com',
+    });
+
+    const response = await userService.getUserInfo('valid-id');
+    expect(response).toBeDefined();
+    expect(response).toHaveProperty('id', 'user-id');
+    expect(response).toHaveProperty('email', 'test@example.com');
+  });
+
+  it('should throw bad request error if id not found', async () => {
+    await expect(userService.getUserInfo(null as unknown as string)).rejects.toThrow(BadRequest);
+  });
+
+  it('should throw notfound error if user not found with id', async () => {
+    (userRepository.findUserById as jest.Mock).mockResolvedValue(null);
+
+    await expect(userService.getUserInfo('invalid-id')).rejects.toThrow(
+      NotFound
+    );
+  });
+});
