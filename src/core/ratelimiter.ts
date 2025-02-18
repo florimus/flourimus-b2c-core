@@ -1,4 +1,5 @@
 import rateLimit from 'express-rate-limit';
+import statusCodes from './statusCodes';
 
 /**
  * Creates a rate limiter middleware with the specified limit.
@@ -11,8 +12,11 @@ const limiter = (limit: number = 5, timeFrame: number = 5) =>
   rateLimit({
     windowMs: timeFrame * 1000,
     max: limit,
-    message: { error: 'Too many requests, please try again later.' },
-    standardHeaders: true,
+    message: {
+      message: 'Too many attempts, please try again later.',
+      statusCode: statusCodes.TOO_MANY_REQUEST,
+    },
+    standardHeaders: false,
     legacyHeaders: false,
   });
 

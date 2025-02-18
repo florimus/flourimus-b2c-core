@@ -22,19 +22,19 @@ const router = createRouter();
 
 router.post(
   '/register',
-  limiter(2),
+  limiter(1),
   inspect(CreateUserRequestSchema),
   registerUser
 );
 
 router.post(
   '/register-sso',
-  limiter(2),
+  limiter(1),
   inspect(CreateSSOUserRequestSchema),
   registerSSOUser
 );
 
-router.post('/login-sso', inspect(LoginSSOUserRequestSchema), loginSSOUser);
+router.post('/login-sso', limiter(5, 10 * 60), inspect(LoginSSOUserRequestSchema), loginSSOUser);
 
 router.post('/login', limiter(5, 10 * 60), inspect(LoginUserRequestSchema), loginUser);
 
