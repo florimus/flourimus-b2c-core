@@ -40,6 +40,11 @@ const requestUserValidator = async (
     throw new UnAuthorized('User with the given not exists');
   }
 
+  if (!user.isActive) {
+    Logger.error(`user ${user._id} is suspended`);
+    throw new UnAuthorized('Your account is suspended. please contact admin');
+  }
+
   res.locals.role = user.role;
   res.locals._id = user._id;
 

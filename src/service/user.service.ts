@@ -157,6 +157,11 @@ const loginSSOUser = async (LoginSSOUser: LoginSSOUserRequest) => {
     throw new UnAuthorized('User with the given not exists');
   }
 
+  if (!user.isActive) {
+    Logger.error(`user ${user._id} is suspended`);
+    throw new UnAuthorized('User is suspended. please contact admin');
+  }
+
   Logger.info('User {} fetched successfully', user._id);
 
   return {
@@ -185,6 +190,11 @@ const loginUser = async (loginUser: LoginUserRequest) => {
   if (!user) {
     Logger.error('User with the given email not exists');
     throw new UnAuthorized('User with the given not exists');
+  }
+
+  if (!user.isActive) {
+    Logger.error(`user ${user._id} is suspended`);
+    throw new UnAuthorized('User is suspended. please contact admin');
   }
 
   if (user.loginType !== 'password') {
