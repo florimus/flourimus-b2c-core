@@ -67,6 +67,7 @@ const convertToUserViewFromUser = (user: User): UserView => {
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
+    phone: user.phone,
     role: user.role,
     isBlocked: user.isBlocked,
     loginType: user.loginType,
@@ -74,7 +75,6 @@ const convertToUserViewFromUser = (user: User): UserView => {
     createdAt: user.createdAt,
     createdBy: user.createdBy,
     metaStatus: user.metaStatus,
-    phone: user.phone,
     updatedAt: user.updatedAt,
     updatedBy: user.updatedBy,
   };

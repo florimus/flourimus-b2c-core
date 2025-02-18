@@ -49,3 +49,32 @@ export const LoginUserRequestSchema = z.object({
     .string({ required_error: 'password is required' })
     .min(8, 'Password must be at least 8 characters long'),
 });
+
+export const UserUpdateRequestSchema = z.object({
+  firstName: z
+    .string()
+    .min(2, 'First name must be at least 2 characters')
+    .or(z.literal(''))
+    .optional(),
+  lastName: z
+    .string()
+    .min(2, 'Last name must be at least 2 characters')
+    .or(z.literal(''))
+    .optional(),
+  phone: z
+    .union([
+      z.null(),
+      z.object({
+        dialCode: z
+          .string()
+          .regex(
+            /^\+\d{1,3}$/,
+            'Dial code must start with + and contain 1-3 digits'
+          ),
+        number: z
+          .string()
+          .regex(/^\d{10}$/, 'Number must be exactly 10 digits'),
+      }),
+    ])
+    .optional(),
+});

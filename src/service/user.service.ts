@@ -251,11 +251,11 @@ const myInfo = async (email: string) => {
 
 /**
  * Updates the status of a user by toggling their `isActive` property.
- * 
+ *
  * @param {string} [id] - The ID of the user whose status is to be updated.
  * @throws {BadRequest} Throws an error if the `id` is not provided.
- * @returns {Promise<{ message: string, isActive: boolean, version: number }>} 
- * An object containing a message indicating the new status of the user, 
+ * @returns {Promise<{ message: string, isActive: boolean, version: number }>}
+ * An object containing a message indicating the new status of the user,
  * the updated `isActive` status, and the version of the user.
  */
 const userStatusUpdate = async (id?: string) => {
@@ -271,13 +271,17 @@ const userStatusUpdate = async (id?: string) => {
 
   const updatedUser = await updateUser(id, {
     isActive: !user.isActive,
-    ...versionControl(user.version)
+    ...versionControl(user.version),
   });
 
-  Logger.info('Updated user {} status: {}', id, JSON.stringify(updatedUser?.isActive));
+  Logger.info(
+    'Updated user {} status: {}',
+    id,
+    JSON.stringify(updatedUser?.isActive)
+  );
 
   return {
-    message: `User is ${updatedUser?.isActive ? 'Activated': 'Suspended'}`,
+    message: `User is ${updatedUser?.isActive ? 'Activated' : 'Suspended'}`,
     isActive: updatedUser?.isActive,
     version: updatedUser?.version,
   };
@@ -299,13 +303,50 @@ const getUserInfo = async (id: string) => {
   const user = await findUserById(id);
 
   if (!user) {
-    Logger.error('User with the given email not exists');
+    Logger.error('User with the given id not exists');
     throw new NotFound('User with the given id not exists');
   }
 
   Logger.info('User {} fetched successfully', user._id);
 
   return userHelper.convertToUserViewFromUser(user);
+};
+
+const updateUserInfo = async (id: string, request: Partial<User>) => {
+  if (!id) {
+    throw new BadRequest('id not found');
+  }
+
+  const user = await findUserById(id);
+
+  if (!user) {
+    Logger.error('User with the given email not exists');
+    throw new NotFound('User with the given id not exists');
+  }
+
+  Logger.info('User {} fetched successfully', user._id);
+
+  const updateUserRequest: Partial<User> = {
+    firstName: request.firstName || user.firstName,
+    lastName: request.lastName || user.lastName,
+    ...versionControl(user.version),
+  };
+
+  if (request.phone) {
+    updateUserRequest.phone = {
+      dialCode: request.phone.dialCode,
+      number: request.phone.number,
+    };
+  }
+
+  const updatedUser = await updateUser(id, {
+    ...updateUserRequest,
+    ...versionControl(user.version),
+  });
+
+  Logger.info('User {} updated successfully', user._id);
+
+  return userHelper.convertToUserViewFromUser(updatedUser as User);
 };
 
 export default {
@@ -315,5 +356,6 @@ export default {
   loginUser,
   myInfo,
   userStatusUpdate,
-  getUserInfo
+  getUserInfo,
+  updateUserInfo,
 };

@@ -407,3 +407,67 @@ describe('getUserInfo', () => {
     );
   });
 });
+
+describe('updateUserInfo', () => {
+  it('should throw bad request error if id not found', async () => {
+    await expect(userService.updateUserInfo(null as unknown as string, {})).rejects.toThrow(BadRequest);
+  });
+
+  it('should throw notfound error if user not found with id', async () => {
+    (userRepository.findUserById as jest.Mock).mockResolvedValue(null);
+
+    await expect(userService.updateUserInfo('invalid-id', {})).rejects.toThrow(NotFound);
+  });
+
+  it('should update user information successfully', async () => {
+    const updatedUser = {
+      ...mockCreateUserResponse,
+      firstName: 'UpdatedFirstName',
+      lastName: 'UpdatedLastName',
+      version: 2,
+    };
+    (userRepository.findUserById as jest.Mock).mockResolvedValue(mockCreateUserResponse);
+    (userRepository.updateUserById as jest.Mock).mockResolvedValue(updatedUser);
+    (userHelper.convertToUserViewFromUser as jest.Mock).mockReturnValue({
+      id: 'user-id',
+      email: 'test@example.com',
+      firstName: 'UpdatedFirstName',
+      lastName: 'UpdatedLastName',
+    });
+
+    const response = await userService.updateUserInfo('valid-id', {
+      firstName: 'UpdatedFirstName',
+      lastName: 'UpdatedLastName',
+    });
+
+    expect(response).toBeDefined();
+    expect(response).toHaveProperty('id', 'user-id');
+    expect(response).toHaveProperty('email', 'test@example.com');
+    expect(response).toHaveProperty('firstName', 'UpdatedFirstName');
+    expect(response).toHaveProperty('lastName', 'UpdatedLastName');
+  });
+
+  it('should update user phone number successfully', async () => {
+    const updatedUser = {
+      ...mockCreateUserResponse,
+      phone: { dialCode: '+1', number: '1234567890' },
+      version: 2,
+    };
+    (userRepository.findUserById as jest.Mock).mockResolvedValue(mockCreateUserResponse);
+    (userRepository.updateUserById as jest.Mock).mockResolvedValue(updatedUser);
+    (userHelper.convertToUserViewFromUser as jest.Mock).mockReturnValue({
+      id: 'user-id',
+      email: 'test@example.com',
+      phone: { dialCode: '+1', number: '1234567890' },
+    });
+
+    const response = await userService.updateUserInfo('valid-id', {
+      phone: { dialCode: '+1', number: '1234567890' },
+    });
+
+    expect(response).toBeDefined();
+    expect(response).toHaveProperty('id', 'user-id');
+    expect(response).toHaveProperty('email', 'test@example.com');
+    expect(response).toHaveProperty('phone', { dialCode: '+1', number: '1234567890' });
+  });
+});
