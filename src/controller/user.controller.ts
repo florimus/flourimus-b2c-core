@@ -232,7 +232,64 @@ export const userStatusUpdate = async (req: Request, res: Response) => {
   res.status(status.OK).json(await userService.userStatusUpdate(req.params.id));
 };
 
+/**
+ * @swagger
+ *
+ * /users/:id:
+ *   get:
+ *     summary: Get user info
+ *     description: Retrieve information about the user with id.
+ *     tags:
+ *       - User APis
+ *     responses:
+ *       200:
+ *         description: The user's information with id
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UserView'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             type: object
+ *             properties:
+ *               message: "unauthorized"
+ *               statusCode: 401
+ *               info: []
+ */
 export const getUserInfo = async (req: Request, res: Response) => {
   Logger.info('Received request to view user info');
   res.status(status.OK).json(await userService.getUserInfo(req.params.id));
+};
+
+/**
+ * @swagger
+ *
+ * /users/my-info:
+ *   get:
+ *     summary: Update user info
+ *     description: Update information about the user.
+ *     tags:
+ *       - User APis
+ *     responses:
+ *       200:
+ *         description: The user's information will be updated.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UserView'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             type: object
+ *             properties:
+ *               message: "unauthorized"
+ *               statusCode: 401
+ *               info: []
+ */
+export const updateUserInfo = async (req: Request, res: Response) => {
+  Logger.info('Received request to update user info');
+  res.status(status.OK).json(await userService.updateUserInfo(req.params.id, req.body));
 };

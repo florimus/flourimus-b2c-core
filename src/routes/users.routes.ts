@@ -3,6 +3,7 @@ import {
   CreateUserRequestSchema,
   LoginSSOUserRequestSchema,
   LoginUserRequestSchema,
+  UserUpdateRequestSchema,
 } from '@core/schemas/user.schema';
 import {
   getUserInfo,
@@ -11,6 +12,7 @@ import {
   myInfo,
   registerSSOUser,
   registerUser,
+  updateUserInfo,
   userStatusUpdate,
 } from '@controller/user.controller';
 import createRouter from '@core/router';
@@ -63,5 +65,12 @@ router.patch(
 );
 
 router.get('/:id', hasPermission('user_info_view'), getUserInfo);
+
+router.put(
+  '/:id',
+  hasPermission('user_info_update'),
+  inspect(UserUpdateRequestSchema),
+  updateUserInfo
+);
 
 export default router.getRouter();
