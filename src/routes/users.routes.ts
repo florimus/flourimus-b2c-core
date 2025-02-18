@@ -14,22 +14,29 @@ import {
 import createRouter from '@core/router';
 import hasPermission from '@middleware/permissionValidator';
 import inspect from '@middleware/requestInspect';
+import limiter from '@core/ratelimiter';
 import requestUserValidator from '@middleware/requestUserValidator';
 import tokenValidator from '@middleware/tokenValidator';
 
 const router = createRouter();
 
-router.post('/register', inspect(CreateUserRequestSchema), registerUser);
+router.post(
+  '/register',
+  limiter(2),
+  inspect(CreateUserRequestSchema),
+  registerUser
+);
 
 router.post(
   '/register-sso',
+  limiter(2),
   inspect(CreateSSOUserRequestSchema),
   registerSSOUser
 );
 
 router.post('/login-sso', inspect(LoginSSOUserRequestSchema), loginSSOUser);
 
-router.post('/login', inspect(LoginUserRequestSchema), loginUser);
+router.post('/login', limiter(5, 10 * 60), inspect(LoginUserRequestSchema), loginUser);
 
 router.use('*', tokenValidator);
 router.use('*', requestUserValidator);
