@@ -10,6 +10,7 @@ import {
   myInfo,
   registerSSOUser,
   registerUser,
+  userStatusUpdate,
 } from '@controller/user.controller';
 import createRouter from '@core/router';
 import hasPermission from '@middleware/permissionValidator';
@@ -34,13 +35,30 @@ router.post(
   registerSSOUser
 );
 
-router.post('/login-sso', limiter(5, 10 * 60), inspect(LoginSSOUserRequestSchema), loginSSOUser);
+router.post(
+  '/login-sso',
+  limiter(5, 10 * 60),
+  inspect(LoginSSOUserRequestSchema),
+  loginSSOUser
+);
 
-router.post('/login', limiter(5, 10 * 60), inspect(LoginUserRequestSchema), loginUser);
+router.post(
+  '/login',
+  limiter(5, 10 * 60),
+  inspect(LoginUserRequestSchema),
+  loginUser
+);
 
+// Authenticated routes
 router.use('*', tokenValidator);
 router.use('*', requestUserValidator);
 
 router.get('/', hasPermission('my_info'), myInfo);
+
+router.patch(
+  '/:id/status',
+  hasPermission('user_status_update'),
+  userStatusUpdate
+);
 
 export default router.getRouter();

@@ -197,3 +197,37 @@ export const myInfo = async (_req: Request, res: Response) => {
   Logger.info('Received request to get my info');
   res.status(status.OK).json(await userService.myInfo(res.locals.email));
 };
+
+/**
+ * @swagger
+ *
+ * /users/:id/status:
+ *   get:
+ *     summary: Update user's status
+ *     description: Update users status
+ *     tags:
+ *       - User APis
+ *     responses:
+ *       200:
+ *         description: Updated user's status
+ *         content:
+ *           application/json:
+ *             type: object
+ *             properties:
+ *               message: "User is Activated/Suspended"
+ *               isActive: true/false
+ *               version: 1
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             type: object
+ *             properties:
+ *               message: "unauthorized"
+ *               statusCode: 401
+ *               info: []
+ */
+export const userStatusUpdate = async (req: Request, res: Response) => {
+  Logger.info('Received request to update user status');
+  res.status(status.OK).json(await userService.userStatusUpdate(req.params.id));
+};

@@ -10,8 +10,10 @@ import {
   createUserAccessTokenPayload,
   createUserRefreshTokenPayload,
 } from '@src/auth/payload.generator';
+import BadRequest from '@src/errorBoundary/custom/badrequest.error';
 import Conflict from '@src/errorBoundary/custom/conflict.error';
 import Logger from '@core/logger';
+import NotFound from '@src/errorBoundary/custom/notFound.error';
 import TokenTypes from '@core/enums/token.types';
 import UnAuthorized from '@src/errorBoundary/custom/unauthorized.error';
 import { comparePassword } from '@core/utils/password.utils';
@@ -19,6 +21,7 @@ import decryptGoogleToken from '@src/auth/googleTokenValidator';
 import { generateToken } from '@core/utils/jwt.utils';
 import userHelper from '@helpers/user.helper';
 import userRepository from '@persistence/repositories/user.repository';
+import versionControl from '@core/utils/version.utils';
 
 /**
  * Checks if a user with the given email exists in the repository.
@@ -39,6 +42,28 @@ const isExistingUser: (email: string) => Promise<boolean> = async (email) =>
 const findUserByEmail: (email: string) => Promise<User | null> = async (
   email
 ) => userRepository.findUserByEmail(email);
+
+/**
+ * Finds a user by their unique identifier.
+ *
+ * @param id - The unique identifier of the user.
+ * @returns {Promise<User | null>} A promise that resolves to the user if found, or null if not found.
+ */
+const findUserById: (id: string) => Promise<User | null> = async (id) =>
+  userRepository.findUserById(id);
+
+/**
+ * Updates a user with the given id and data.
+ *
+ * @param id - The unique identifier of the user to be updated.
+ * @param data - An object containing the partial data to update the user with.
+ * @returns {Promise<User | null>} A promise that resolves to the updated user object, or null if the user could not be found.
+ */
+const updateUser: (
+  id: string,
+  data: Partial<User>
+) => Promise<User | null> = async (id, data) =>
+  userRepository.updateUserById(id, data);
 
 /**
  * Registers a new user with the provided user creation request.
@@ -133,6 +158,11 @@ const loginSSOUser = async (LoginSSOUser: LoginSSOUserRequest) => {
     throw new UnAuthorized('User with the given not exists');
   }
 
+  if (!user.isActive) {
+    Logger.error(`user ${user._id} is suspended`);
+    throw new UnAuthorized('User is suspended. please contact admin');
+  }
+
   Logger.info('User {} fetched successfully', user._id);
 
   return {
@@ -161,6 +191,11 @@ const loginUser = async (loginUser: LoginUserRequest) => {
   if (!user) {
     Logger.error('User with the given email not exists');
     throw new UnAuthorized('User with the given not exists');
+  }
+
+  if (!user.isActive) {
+    Logger.error(`user ${user._id} is suspended`);
+    throw new UnAuthorized('User is suspended. please contact admin');
   }
 
   if (user.loginType !== 'password') {
@@ -214,10 +249,45 @@ const myInfo = async (email: string) => {
   return userHelper.convertToUserViewFromUser(user);
 };
 
+/**
+ * Updates the status of a user by toggling their `isActive` property.
+ * 
+ * @param {string} [id] - The ID of the user whose status is to be updated.
+ * @throws {BadRequest} Throws an error if the `id` is not provided.
+ * @returns {Promise<{ message: string, isActive: boolean, version: number }>} 
+ * An object containing a message indicating the new status of the user, 
+ * the updated `isActive` status, and the version of the user.
+ */
+const userStatusUpdate = async (id?: string) => {
+  if (!id) {
+    throw new BadRequest('id not found');
+  }
+  const user = await findUserById(id);
+
+  if (!user) {
+    Logger.error('User not exists');
+    throw new NotFound('User not exists');
+  }
+
+  const updatedUser = await updateUser(id, {
+    isActive: !user.isActive,
+    ...versionControl(user.version)
+  });
+
+  Logger.info('Updated user {} status: {}', id, JSON.stringify(updatedUser?.isActive));
+
+  return {
+    message: `User is ${updatedUser?.isActive ? 'Activated': 'Suspended'}`,
+    isActive: updatedUser?.isActive,
+    version: updatedUser?.version,
+  };
+};
+
 export default {
   registerUser,
   registerSSOUser,
   loginSSOUser,
   loginUser,
-  myInfo
+  myInfo,
+  userStatusUpdate,
 };

@@ -32,8 +32,30 @@ const findUserByEmail = async (email: string) => {
   return (await UserSchema.findOne({ email: { $eq: email } })) as User;
 };
 
+/**
+ * Finds a user by their unique identifier.
+ *
+ * @param id - The unique identifier of the user.
+ * @returns {Promise<User>} A promise that resolves to the user object if found, otherwise null.
+ */
+const findUserById = async (id: string) => {
+  return (await UserSchema.findOne({ _id: { $eq: id } })) as User;
+};
+
+const updateUserById = async (id: string, data: Partial<User>) => {
+  return (await UserSchema.findOneAndUpdate(
+    { _id: { $eq: id } },
+    {
+      ...data,
+    },
+    { new: true }
+  )) as User;
+};
+
 export default {
   createUser,
   isExistingUser,
   findUserByEmail,
+  findUserById,
+  updateUserById
 };
