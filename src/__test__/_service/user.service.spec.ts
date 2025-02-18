@@ -4,7 +4,9 @@ import {
   mockCreateUserResponse,
 } from '@fixtures/user.service.fixtures';
 
+import BadRequest from '@src/errorBoundary/custom/badrequest.error';
 import Conflict from '@src/errorBoundary/custom/conflict.error';
+import NotFound from '@src/errorBoundary/custom/notFound.error';
 import UnAuthorized from '@src/errorBoundary/custom/unauthorized.error';
 import { comparePassword } from '@core/utils/password.utils';
 import decryptGoogleToken from '@src/auth/googleTokenValidator';
@@ -164,6 +166,19 @@ describe('loginSSOUser', () => {
       userService.loginSSOUser({ token: 'valid-token' })
     ).rejects.toThrow(UnAuthorized);
   });
+
+  it('should return a 401 error when the user is suspended', async () => {
+    (decryptGoogleToken as jest.Mock).mockResolvedValue('test@example.com');
+    (userRepository.findUserByEmail as jest.Mock).mockResolvedValue({
+      ...mockCreateUserResponse,
+      isActive: false
+    });
+
+    await expect(
+      userService.loginSSOUser({ token: 'valid-token' })
+    ).rejects.toThrow(UnAuthorized);
+  });
+
 });
 
 describe('loginUser', () => {
@@ -236,6 +251,15 @@ describe('loginUser', () => {
       })
     ).rejects.toThrow(UnAuthorized);
   });
+
+  it('should return a 401 error when the user is suspended', async () => {
+    const googleUser = { ...mockCreateUserResponse, loginType: 'google', isActive: false };
+    (userRepository.findUserByEmail as jest.Mock).mockResolvedValue(googleUser);
+
+    await expect(
+      userService.loginUser({ email: 'test@example.com', password: 'password' })
+    ).rejects.toThrow(UnAuthorized);
+  });
 });
 
 describe('myInfo', () => {
@@ -260,5 +284,97 @@ describe('myInfo', () => {
     await expect(userService.myInfo('test@example.com')).rejects.toThrow(
       UnAuthorized
     );
+  });
+});
+
+describe('userStatusUpdate', () => {
+  it('should throw bad request error if id not found', async () => {
+    await expect(userService.userStatusUpdate()).rejects.toThrow(BadRequest);
+  });
+
+  it('should throw notfound error if user not found with id', async () => {
+    (userRepository.findUserByEmail as jest.Mock).mockResolvedValue(null);
+
+    await expect(userService.userStatusUpdate('invalid-id')).rejects.toThrow(
+      NotFound
+    );
+  });
+
+  it('should save and return response correctly', async () => {
+    (userRepository.findUserByEmail as jest.Mock).mockResolvedValue(
+      mockCreateUserResponse
+    );
+    (userRepository.findUserById as jest.Mock).mockResolvedValue({
+      ...mockCreateUserResponse,
+      isActive: false,
+      version: 2,
+    });
+
+    const response = await userService.userStatusUpdate('valid-id');
+    expect(response).toHaveProperty('message');
+    expect(response).toHaveProperty('isActive');
+    expect(response).toHaveProperty('version');
+  });
+});
+
+describe('userStatusUpdate', () => {
+  it('should throw bad request error if id not found', async () => {
+    await expect(userService.userStatusUpdate()).rejects.toThrow(BadRequest);
+  });
+
+  it('should throw notfound error if user not found with id', async () => {
+    (userRepository.findUserById as jest.Mock).mockResolvedValue(null);
+
+    await expect(userService.userStatusUpdate('invalid-id')).rejects.toThrow(
+      NotFound
+    );
+  });
+
+  it('should save and return response correctly', async () => {
+    (userRepository.findUserById as jest.Mock).mockResolvedValue(
+      mockCreateUserResponse
+    );
+    (userRepository.updateUserById as jest.Mock).mockResolvedValue({
+      ...mockCreateUserResponse,
+      isActive: false,
+      version: 2,
+    });
+
+    const response = await userService.userStatusUpdate('valid-id');
+    expect(response).toHaveProperty('message');
+    expect(response).toHaveProperty('isActive');
+    expect(response).toHaveProperty('version');
+  });
+
+  it('should activate a suspended user', async () => {
+    const suspendedUser = { ...mockCreateUserResponse, isActive: false };
+    (userRepository.findUserById as jest.Mock).mockResolvedValue(
+      suspendedUser
+    );
+    (userRepository.updateUserById as jest.Mock).mockResolvedValue({
+      ...suspendedUser,
+      isActive: true,
+      version: 2,
+    });
+
+    const response = await userService.userStatusUpdate('valid-id');
+    expect(response).toHaveProperty('message', 'User is Activated');
+    expect(response).toHaveProperty('isActive', true);
+    expect(response).toHaveProperty('version', 2);
+  });
+
+  it('should suspend an active user', async () => {
+    const activeUser = { ...mockCreateUserResponse, isActive: true };
+    (userRepository.findUserById as jest.Mock).mockResolvedValue(activeUser);
+    (userRepository.updateUserById as jest.Mock).mockResolvedValue({
+      ...activeUser,
+      isActive: false,
+      version: 2,
+    });
+
+    const response = await userService.userStatusUpdate('valid-id');
+    expect(response).toHaveProperty('message', 'User is Suspended');
+    expect(response).toHaveProperty('isActive', false);
+    expect(response).toHaveProperty('version', 2);
   });
 });

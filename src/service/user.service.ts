@@ -13,6 +13,7 @@ import {
 import BadRequest from '@src/errorBoundary/custom/badrequest.error';
 import Conflict from '@src/errorBoundary/custom/conflict.error';
 import Logger from '@core/logger';
+import NotFound from '@src/errorBoundary/custom/notFound.error';
 import TokenTypes from '@core/enums/token.types';
 import UnAuthorized from '@src/errorBoundary/custom/unauthorized.error';
 import { comparePassword } from '@core/utils/password.utils';
@@ -263,9 +264,14 @@ const userStatusUpdate = async (id?: string) => {
   }
   const user = await findUserById(id);
 
+  if (!user) {
+    Logger.error('User not exists');
+    throw new NotFound('User not exists');
+  }
+
   const updatedUser = await updateUser(id, {
-    isActive: !user?.isActive,
-    ...versionControl(user?.version)
+    isActive: !user.isActive,
+    ...versionControl(user.version)
   });
 
   Logger.info('Updated user {} status: {}', id, JSON.stringify(updatedUser?.isActive));
