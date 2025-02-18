@@ -5,6 +5,7 @@ import {
   LoginUserRequestSchema,
 } from '@core/schemas/user.schema';
 import {
+  getUserInfo,
   loginSSOUser,
   loginUser,
   myInfo,
@@ -60,5 +61,7 @@ router.patch(
   hasPermission('user_status_update'),
   userStatusUpdate
 );
+
+router.get('/:id', hasPermission('user_info_view'), getUserInfo);
 
 export default router.getRouter();

@@ -1,4 +1,4 @@
 {
   "customer": ["my_info"],
-  "superAdmin": ["user_status_update"]
+  "superAdmin": ["user_status_update", "user_info_view"]
 }
