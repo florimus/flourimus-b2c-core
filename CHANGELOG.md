@@ -9,21 +9,20 @@ All notable, unreleased changes to this project will be documented in this file.
 ### 🔥 Highlights
 - Api for updating current authenticated user - by @Anoopoo7
 
-- User Registration in B2C Core Platform - Email and password -by @anoopoo7
-- User Registration in B2C Core Platform - google-so -by @anoopoo7
-- User SSO Login in B2C Core Platform -by @anoopoo7
-- User email-password Login in B2C Core Platform -by @anoopoo7
-- Fetch user details -by @anoopoo7
-- RBAC for b2c core users -by @anoopoo7
-- Suspend/Activate user -by @anoopoo7
-- View B2c user profile -by @anoopoo7
-- Update user -by @anoopoo7
+- User Registration in B2C Core Platform - Email and password -by @Anoopoo7
+- User Registration in B2C Core Platform - google-so -by @Anoopoo7
+- User SSO Login in B2C Core Platform -by @Anoopoo7
+- User email-password Login in B2C Core Platform -by @Anoopoo7
+- Fetch user details -by @Anoopoo7
+- RBAC for b2c core users -by @Anoopoo7
+- Suspend/Activate user -by @Anoopoo7
+- View B2c user profile -by @Anoopoo7
+- Update user -by @Anoopoo7
 
 ### ⚠️ Breaking Changes
 
 ### 🐛 Bug Fixes
-- UpdatedBy and UpdatedAt not changing issue fixed -by @anoopoo7
+- UpdatedBy and UpdatedAt not changing issue fixed -by @Anoopoo7
 
 ### 📌 Other Changes
-- CHANGELOG.md file author's name corrected - by @Anoopoo7
-- Update readme.md -by @anoopoo7
+- Update readme.md -by @Anoopoo7

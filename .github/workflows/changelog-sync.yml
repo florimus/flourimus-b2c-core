@@ -65,5 +65,5 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions@github.com"
           git add CHANGELOG.md
-          git commit -m "chore: update CHANGELOG.md for $MILESTONE"
+          git commit -m "chore: update CHANGELOG.md for \"$MILESTONE\" - \"$TITLE\" by \"$USER\""
           git push
