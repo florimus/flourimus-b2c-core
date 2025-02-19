@@ -269,7 +269,7 @@ export const getUserInfo = async (req: Request, res: Response) => {
  * @swagger
  *
  * /users/my-info:
- *   get:
+ *   post:
  *     summary: Update user info
  *     description: Update information about the user.
  *     tags:
@@ -302,4 +302,37 @@ export const updateUserInfo = async (req: Request, res: Response) => {
         res.locals.email
       )
     );
+};
+
+/**
+ * @swagger
+ *
+ * /users:
+ *   put:
+ *     summary: Update current user info
+ *     description: Update information about the authenticated user.
+ *     tags:
+ *       - User APis
+ *     responses:
+ *       200:
+ *         description: The authenticated user's information will be updated.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UserView'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             type: object
+ *             properties:
+ *               message: "unauthorized"
+ *               statusCode: 401
+ *               info: []
+ */
+export const updateMyInfo = async (req: Request, res: Response) => {
+  Logger.info('Received request to update my info');
+  res
+    .status(status.OK)
+    .json(await userService.updateMyInfo(res.locals.id, req.body));
 };

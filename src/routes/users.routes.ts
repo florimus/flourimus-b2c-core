@@ -12,6 +12,7 @@ import {
   myInfo,
   registerSSOUser,
   registerUser,
+  updateMyInfo,
   updateUserInfo,
   userStatusUpdate,
 } from '@controller/user.controller';
@@ -52,22 +53,29 @@ router.post(
   loginUser
 );
 
-// Authenticated routes
 router.use('*', tokenValidator);
-router.use('*', requestUserValidator);
 
-router.get('/', hasPermission('my_info'), myInfo);
+router.get('/', myInfo);
+
+router.put('/', updateMyInfo);
 
 router.patch(
   '/:id/status',
+  requestUserValidator,
   hasPermission('user_status_update'),
   userStatusUpdate
 );
 
-router.get('/:id', hasPermission('user_info_view'), getUserInfo);
+router.get(
+  '/:id',
+  requestUserValidator,
+  hasPermission('user_info_view'),
+  getUserInfo
+);
 
 router.put(
   '/:id',
+  requestUserValidator,
   hasPermission('user_info_update'),
   inspect(UserUpdateRequestSchema),
   updateUserInfo
