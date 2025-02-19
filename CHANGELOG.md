@@ -24,4 +24,5 @@ All notable, unreleased changes to this project will be documented in this file.
 - UpdatedBy and UpdatedAt not changing issue fixed -by @anoopoo7
 
 ### 📌 Other Changes
+- CHANGELOG.md file author's name corrected - by @Anoopoo7
 - Update readme.md -by @anoopoo7
