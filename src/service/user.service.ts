@@ -253,12 +253,13 @@ const myInfo = async (email: string) => {
  * Updates the status of a user by toggling their `isActive` property.
  *
  * @param {string} [id] - The ID of the user whose status is to be updated.
+ * @param admin - admin of the request
  * @throws {BadRequest} Throws an error if the `id` is not provided.
  * @returns {Promise<{ message: string, isActive: boolean, version: number }>}
  * An object containing a message indicating the new status of the user,
  * the updated `isActive` status, and the version of the user.
  */
-const userStatusUpdate = async (id?: string) => {
+const userStatusUpdate = async (id: string, admin: string) => {
   if (!id) {
     throw new BadRequest('id not found');
   }
@@ -271,7 +272,7 @@ const userStatusUpdate = async (id?: string) => {
 
   const updatedUser = await updateUser(id, {
     isActive: !user.isActive,
-    ...versionControl(user.version),
+    ...versionControl(admin, user.version),
   });
 
   Logger.info(
@@ -312,7 +313,23 @@ const getUserInfo = async (id: string) => {
   return userHelper.convertToUserViewFromUser(user);
 };
 
-const updateUserInfo = async (id: string, request: Partial<User>) => {
+/**
+ * Updates the user information based on the provided partial user data.
+ *
+ * @param id - The unique identifier of the user to be updated.
+ * @param request - An object containing the partial user data to update.
+ * @param admin - admin of the request
+ *
+ * @throws {BadRequest} If the id is not provided.
+ * @throws {NotFound} If the user with the given id does not exist.
+ *
+ * @returns A promise that resolves to the updated user view.
+ */
+const updateUserInfo = async (
+  id: string,
+  request: Partial<User>,
+  admin: string
+) => {
   if (!id) {
     throw new BadRequest('id not found');
   }
@@ -329,7 +346,6 @@ const updateUserInfo = async (id: string, request: Partial<User>) => {
   const updateUserRequest: Partial<User> = {
     firstName: request.firstName || user.firstName,
     lastName: request.lastName || user.lastName,
-    ...versionControl(user.version),
   };
 
   if (request.phone) {
@@ -341,7 +357,7 @@ const updateUserInfo = async (id: string, request: Partial<User>) => {
 
   const updatedUser = await updateUser(id, {
     ...updateUserRequest,
-    ...versionControl(user.version),
+    ...versionControl(admin, user.version),
   });
 
   Logger.info('User {} updated successfully', user._id);

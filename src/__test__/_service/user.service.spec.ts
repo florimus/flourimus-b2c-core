@@ -171,7 +171,7 @@ describe('loginSSOUser', () => {
     (decryptGoogleToken as jest.Mock).mockResolvedValue('test@example.com');
     (userRepository.findUserByEmail as jest.Mock).mockResolvedValue({
       ...mockCreateUserResponse,
-      isActive: false
+      isActive: false,
     });
 
     await expect(
@@ -253,7 +253,11 @@ describe('loginUser', () => {
   });
 
   it('should return a 401 error when the user is suspended', async () => {
-    const googleUser = { ...mockCreateUserResponse, loginType: 'google', isActive: false };
+    const googleUser = {
+      ...mockCreateUserResponse,
+      loginType: 'google',
+      isActive: false,
+    };
     (userRepository.findUserByEmail as jest.Mock).mockResolvedValue(googleUser);
 
     await expect(
@@ -287,17 +291,21 @@ describe('myInfo', () => {
   });
 });
 
+const admin: string = 'admin@gmail.com';
+
 describe('userStatusUpdate', () => {
   it('should throw bad request error if id not found', async () => {
-    await expect(userService.userStatusUpdate()).rejects.toThrow(BadRequest);
+    await expect(
+      userService.userStatusUpdate(null as unknown as string, admin)
+    ).rejects.toThrow(BadRequest);
   });
 
   it('should throw notfound error if user not found with id', async () => {
     (userRepository.findUserByEmail as jest.Mock).mockResolvedValue(null);
 
-    await expect(userService.userStatusUpdate('invalid-id')).rejects.toThrow(
-      NotFound
-    );
+    await expect(
+      userService.userStatusUpdate('invalid-id', admin)
+    ).rejects.toThrow(NotFound);
   });
 
   it('should save and return response correctly', async () => {
@@ -310,7 +318,7 @@ describe('userStatusUpdate', () => {
       version: 2,
     });
 
-    const response = await userService.userStatusUpdate('valid-id');
+    const response = await userService.userStatusUpdate('valid-id', admin);
     expect(response).toHaveProperty('message');
     expect(response).toHaveProperty('isActive');
     expect(response).toHaveProperty('version');
@@ -319,15 +327,17 @@ describe('userStatusUpdate', () => {
 
 describe('userStatusUpdate', () => {
   it('should throw bad request error if id not found', async () => {
-    await expect(userService.userStatusUpdate()).rejects.toThrow(BadRequest);
+    await expect(
+      userService.userStatusUpdate(null as unknown as string, admin)
+    ).rejects.toThrow(BadRequest);
   });
 
   it('should throw notfound error if user not found with id', async () => {
     (userRepository.findUserById as jest.Mock).mockResolvedValue(null);
 
-    await expect(userService.userStatusUpdate('invalid-id')).rejects.toThrow(
-      NotFound
-    );
+    await expect(
+      userService.userStatusUpdate('invalid-id', admin)
+    ).rejects.toThrow(NotFound);
   });
 
   it('should save and return response correctly', async () => {
@@ -340,7 +350,7 @@ describe('userStatusUpdate', () => {
       version: 2,
     });
 
-    const response = await userService.userStatusUpdate('valid-id');
+    const response = await userService.userStatusUpdate('valid-id', admin);
     expect(response).toHaveProperty('message');
     expect(response).toHaveProperty('isActive');
     expect(response).toHaveProperty('version');
@@ -348,16 +358,14 @@ describe('userStatusUpdate', () => {
 
   it('should activate a suspended user', async () => {
     const suspendedUser = { ...mockCreateUserResponse, isActive: false };
-    (userRepository.findUserById as jest.Mock).mockResolvedValue(
-      suspendedUser
-    );
+    (userRepository.findUserById as jest.Mock).mockResolvedValue(suspendedUser);
     (userRepository.updateUserById as jest.Mock).mockResolvedValue({
       ...suspendedUser,
       isActive: true,
       version: 2,
     });
 
-    const response = await userService.userStatusUpdate('valid-id');
+    const response = await userService.userStatusUpdate('valid-id', admin);
     expect(response).toHaveProperty('message', 'User is Activated');
     expect(response).toHaveProperty('isActive', true);
     expect(response).toHaveProperty('version', 2);
@@ -372,7 +380,7 @@ describe('userStatusUpdate', () => {
       version: 2,
     });
 
-    const response = await userService.userStatusUpdate('valid-id');
+    const response = await userService.userStatusUpdate('valid-id', admin);
     expect(response).toHaveProperty('message', 'User is Suspended');
     expect(response).toHaveProperty('isActive', false);
     expect(response).toHaveProperty('version', 2);
@@ -396,7 +404,9 @@ describe('getUserInfo', () => {
   });
 
   it('should throw bad request error if id not found', async () => {
-    await expect(userService.getUserInfo(null as unknown as string)).rejects.toThrow(BadRequest);
+    await expect(
+      userService.getUserInfo(null as unknown as string)
+    ).rejects.toThrow(BadRequest);
   });
 
   it('should throw notfound error if user not found with id', async () => {
@@ -410,13 +420,17 @@ describe('getUserInfo', () => {
 
 describe('updateUserInfo', () => {
   it('should throw bad request error if id not found', async () => {
-    await expect(userService.updateUserInfo(null as unknown as string, {})).rejects.toThrow(BadRequest);
+    await expect(
+      userService.updateUserInfo(null as unknown as string, {}, admin)
+    ).rejects.toThrow(BadRequest);
   });
 
   it('should throw notfound error if user not found with id', async () => {
     (userRepository.findUserById as jest.Mock).mockResolvedValue(null);
 
-    await expect(userService.updateUserInfo('invalid-id', {})).rejects.toThrow(NotFound);
+    await expect(
+      userService.updateUserInfo('invalid-id', {}, admin)
+    ).rejects.toThrow(NotFound);
   });
 
   it('should update user information successfully', async () => {
@@ -426,7 +440,9 @@ describe('updateUserInfo', () => {
       lastName: 'UpdatedLastName',
       version: 2,
     };
-    (userRepository.findUserById as jest.Mock).mockResolvedValue(mockCreateUserResponse);
+    (userRepository.findUserById as jest.Mock).mockResolvedValue(
+      mockCreateUserResponse
+    );
     (userRepository.updateUserById as jest.Mock).mockResolvedValue(updatedUser);
     (userHelper.convertToUserViewFromUser as jest.Mock).mockReturnValue({
       id: 'user-id',
@@ -435,10 +451,14 @@ describe('updateUserInfo', () => {
       lastName: 'UpdatedLastName',
     });
 
-    const response = await userService.updateUserInfo('valid-id', {
-      firstName: 'UpdatedFirstName',
-      lastName: 'UpdatedLastName',
-    });
+    const response = await userService.updateUserInfo(
+      'valid-id',
+      {
+        firstName: 'UpdatedFirstName',
+        lastName: 'UpdatedLastName',
+      },
+      admin
+    );
 
     expect(response).toBeDefined();
     expect(response).toHaveProperty('id', 'user-id');
@@ -453,7 +473,9 @@ describe('updateUserInfo', () => {
       phone: { dialCode: '+1', number: '1234567890' },
       version: 2,
     };
-    (userRepository.findUserById as jest.Mock).mockResolvedValue(mockCreateUserResponse);
+    (userRepository.findUserById as jest.Mock).mockResolvedValue(
+      mockCreateUserResponse
+    );
     (userRepository.updateUserById as jest.Mock).mockResolvedValue(updatedUser);
     (userHelper.convertToUserViewFromUser as jest.Mock).mockReturnValue({
       id: 'user-id',
@@ -461,13 +483,20 @@ describe('updateUserInfo', () => {
       phone: { dialCode: '+1', number: '1234567890' },
     });
 
-    const response = await userService.updateUserInfo('valid-id', {
-      phone: { dialCode: '+1', number: '1234567890' },
-    });
+    const response = await userService.updateUserInfo(
+      'valid-id',
+      {
+        phone: { dialCode: '+1', number: '1234567890' },
+      },
+      admin
+    );
 
     expect(response).toBeDefined();
     expect(response).toHaveProperty('id', 'user-id');
     expect(response).toHaveProperty('email', 'test@example.com');
-    expect(response).toHaveProperty('phone', { dialCode: '+1', number: '1234567890' });
+    expect(response).toHaveProperty('phone', {
+      dialCode: '+1',
+      number: '1234567890',
+    });
   });
 });
