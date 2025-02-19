@@ -1,0 +1,44 @@
+name: Update Changelog on Milestone Create
+
+on:
+  milestone:
+    types:
+      - created
+
+jobs:
+  update-changelog:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract Milestone Details
+        id: milestone_info
+        run: |
+          MILESTONE="${{ github.event.milestone.title }}"
+          echo "MILESTONE=$MILESTONE" >> $GITHUB_ENV
+
+      - name: Update CHANGELOG.md
+        run: |
+          MILESTONE_HEADER="# ${{ env.MILESTONE }}"
+          
+          # Define the new milestone template
+          NEW_MILESTONE_CONTENT="$MILESTONE_HEADER\n\n### 🔥 Highlights\n\n\n### ⚠️ Breaking Changes\n\n\n### 🐛 Bug Fixes\n\n\n### 📌 Other Changes\n"
+
+          # Create a temp file for updated changelog
+          TEMP_CHANGELOG="CHANGELOG_TEMP.md"
+
+          # Insert the new milestone at the top while preserving existing content
+          echo -e "$NEW_MILESTONE_CONTENT\n$(cat CHANGELOG.md)" > "$TEMP_CHANGELOG"
+
+          # Replace the old changelog with the updated one
+          mv "$TEMP_CHANGELOG" CHANGELOG.md
+
+      - name: Commit and Push Changelog Update
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions@github.com"
+          git add CHANGELOG.md
+          git commit -m "chore: add new milestone ${{ env.MILESTONE }} to CHANGELOG.md"
+          git push

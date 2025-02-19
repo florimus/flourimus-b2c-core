@@ -1,0 +1,58 @@
+name: Create Release on Milestone Close
+
+on:
+  milestone:
+    types:
+      - closed
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract Milestone Details
+        id: milestone_info
+        run: |
+          MILESTONE="${{ github.event.milestone.title }}"
+          echo "MILESTONE=$MILESTONE" >> $GITHUB_ENV
+
+      - name: Extract Changelog for Milestone
+        id: extract_changelog
+        run: |
+          MILESTONE_HEADER="# ${{ env.MILESTONE }}"
+          echo "🔍 Searching for milestone: '$MILESTONE_HEADER'"
+
+          # Check if milestone exists
+          if ! grep -q "^$MILESTONE_HEADER" CHANGELOG.md; then
+            echo "❌ Milestone '$MILESTONE_HEADER' not found in CHANGELOG.md"
+            exit 1
+          fi
+
+          # Find the start line of the milestone
+          START_LINE=$(grep -n "^$MILESTONE_HEADER" CHANGELOG.md | cut -d: -f1 | head -n1)
+          echo "📌 Found milestone at line: $START_LINE"
+
+          # Find the next milestone OR end of file
+          END_LINE=$(awk -v start="$START_LINE" 'NR>start && /^# / {print NR; exit}' CHANGELOG.md)
+          if [ -z "$END_LINE" ]; then
+            END_LINE=$(wc -l < CHANGELOG.md)
+          fi
+          echo "📌 Extracting lines from $((START_LINE+1)) to $((END_LINE-1))"
+
+          # Extract and save the milestone changelog
+          sed -n "$((START_LINE+1)),$((END_LINE-1))p" CHANGELOG.md > changelog_excerpt.md
+
+          echo "✅ Extracted Changelog:"
+          cat changelog_excerpt.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.MILESTONE }}
+          name: Release ${{ env.MILESTONE }}
+          body_path: changelog_excerpt.md
+          draft: false
+          prerelease: false

@@ -1,0 +1,69 @@
+name: Update Changelog
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  update-changelog:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get PR details
+        id: pr_info
+        run: |
+          TITLE="${{ github.event.pull_request.title }}"
+          USER="@${{ github.event.pull_request.user.login }}"
+          LABELS="${{ join(github.event.pull_request.labels.*.name, ', ') }}"
+          MILESTONE="${{ github.event.pull_request.milestone.title }}"
+
+          echo "TITLE=$TITLE" >> $GITHUB_ENV
+          echo "USER=$USER" >> $GITHUB_ENV
+          echo "LABELS=$LABELS" >> $GITHUB_ENV
+          echo "MILESTONE=$MILESTONE" >> $GITHUB_ENV
+
+      - name: Update CHANGELOG.md
+        run: |
+          if [ -z "$MILESTONE" ]; then
+            echo "No milestone found, skipping changelog update."
+            exit 0
+          fi
+
+          SECTION="### 📌 Other Changes"
+          
+          for label in $(echo "$LABELS" | tr ',' '\n'); do
+            case $label in
+              highlights) SECTION="### 🔥 Highlights" ;;
+              breaking-changes) SECTION="### ⚠️ Breaking Changes" ;;
+              bugfixes) SECTION="### 🐛 Bug Fixes" ;;
+            esac
+          done
+
+          TEMP_CHANGELOG="CHANGELOG_TEMP.md"
+          
+          awk -v milestone="# $MILESTONE" -v section="$SECTION" -v entry="- $TITLE - by $USER" '
+          {
+            print
+            if ($0 == milestone) {
+              found = 1
+            }
+            if (found && $0 == section) {
+              print entry
+              found = 0
+            }
+          }' CHANGELOG.md > "$TEMP_CHANGELOG"
+
+          mv "$TEMP_CHANGELOG" CHANGELOG.md
+
+      - name: Commit and Push Changelog Update
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions@github.com"
+          git add CHANGELOG.md
+          git commit -m "chore: update CHANGELOG.md for $MILESTONE"
+          git push
