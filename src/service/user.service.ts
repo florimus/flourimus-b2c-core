@@ -365,6 +365,54 @@ const updateUserInfo = async (
   return userHelper.convertToUserViewFromUser(updatedUser as User);
 };
 
+/**
+ * Updates the information of a user with the given ID.
+ *
+ * @param id - The ID of the user to update.
+ * @param request - An object containing the partial user information to update.
+ * @throws {BadRequest} If the ID is not provided.
+ * @throws {NotFound} If the user with the given ID does not exist.
+ * @returns The updated user information in a view format.
+ */
+const updateMyInfo = async (
+  id: string,
+  request: Partial<User>
+) => {
+  if (!id) {
+    throw new BadRequest('id not found');
+  }
+
+  const user = await findUserById(id);
+
+  if (!user) {
+    Logger.error('User with the given email not exists');
+    throw new NotFound('User with the given id not exists');
+  }
+
+  Logger.info('User {} fetched successfully', user._id);
+
+  const updateUserRequest: Partial<User> = {
+    firstName: request.firstName || user.firstName,
+    lastName: request.lastName || user.lastName,
+  };
+
+  if (request.phone) {
+    updateUserRequest.phone = {
+      dialCode: request.phone.dialCode,
+      number: request.phone.number,
+    };
+  }
+
+  const updatedUser = await updateUser(id, {
+    ...updateUserRequest,
+    ...versionControl(user.email, user.version),
+  });
+
+  Logger.info('User {} updated successfully', user._id);
+
+  return userHelper.convertToUserViewFromUser(updatedUser as User);
+};
+
 export default {
   registerUser,
   registerSSOUser,
@@ -374,4 +422,5 @@ export default {
   userStatusUpdate,
   getUserInfo,
   updateUserInfo,
+  updateMyInfo
 };

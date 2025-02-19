@@ -35,6 +35,7 @@ const tokenValidator = (req: Request, res: Response, next: NextFunction) => {
     throw new UnAuthorized('Incorrect token.');
   }
 
+  res.locals.id = payload._id;
   res.locals.email = payload.email;
 
   next();
