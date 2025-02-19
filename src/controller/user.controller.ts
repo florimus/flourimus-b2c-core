@@ -229,7 +229,9 @@ export const myInfo = async (_req: Request, res: Response) => {
  */
 export const userStatusUpdate = async (req: Request, res: Response) => {
   Logger.info('Received request to update user status');
-  res.status(status.OK).json(await userService.userStatusUpdate(req.params.id));
+  res
+    .status(status.OK)
+    .json(await userService.userStatusUpdate(req.params.id, res.locals.email));
 };
 
 /**
@@ -291,5 +293,13 @@ export const getUserInfo = async (req: Request, res: Response) => {
  */
 export const updateUserInfo = async (req: Request, res: Response) => {
   Logger.info('Received request to update user info');
-  res.status(status.OK).json(await userService.updateUserInfo(req.params.id, req.body));
+  res
+    .status(status.OK)
+    .json(
+      await userService.updateUserInfo(
+        req.params.id,
+        req.body,
+        res.locals.email
+      )
+    );
 };
