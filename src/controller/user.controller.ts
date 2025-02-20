@@ -336,3 +336,10 @@ export const updateMyInfo = async (req: Request, res: Response) => {
     .status(status.OK)
     .json(await userService.updateMyInfo(res.locals.id, req.body));
 };
+
+export const forgotPassword = async (req: Request, res: Response) => {
+  Logger.info('Received request to update my info');
+  res
+    .status(status.OK)
+    .json(await userService.forgotPassword(res.locals.id));
+};
