@@ -586,7 +586,7 @@ describe('forgotPassword', () => {
   });
 
   it('should throw notfound error if user not found with id', async () => {
-    (userRepository.findUserById as jest.Mock).mockResolvedValue(null);
+    (userRepository.findUserByEmail as jest.Mock).mockResolvedValue(null);
 
     await expect(userService.forgotPassword('invalid-id')).rejects.toThrow(
       NotFound
@@ -594,7 +594,7 @@ describe('forgotPassword', () => {
   });
 
   it('should create valid token', async () => {
-    (userRepository.findUserById as jest.Mock).mockResolvedValue(
+    (userRepository.findUserByEmail as jest.Mock).mockResolvedValue(
       mockCreateUserResponse
     );
 
