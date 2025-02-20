@@ -415,34 +415,34 @@ const updateMyInfo = async (id: string, request: Partial<User>) => {
 /**
  * Create reset password token against authenticated user
  *
- * @param id - The id of the user.
+ * @param email - The email of the user.
  * @returns {Promise<{ message: string, version: number }>}.
  * @throws {UnAuthorized} If no user is found with the given email.
  */
-const forgotPassword = async (id: string) => {
-  if (!id) {
+const forgotPassword = async (email: string) => {
+  if (!email) {
     throw new BadRequest('id not found');
   }
 
-  const user = await findUserById(id);
+  const user = await findUserByEmail(email);
 
   if (!user) {
-    Logger.error('User with the given id not exists');
-    throw new NotFound('User with the given id not exists');
+    Logger.error('User with the given email not exists');
+    throw new NotFound('User with the given email not exists');
   }
 
   Logger.info('User {} fetched successfully', user._id);
 
   const tokenPayload: { id: string; action: string } = {
-    id,
+    id: user._id,
     action: 'reset_password',
   };
 
   const token = generateToken(tokenPayload, TokenTypes.accessToken);
 
-  Logger.info('Created token to reset password of user: {}', id);
+  Logger.info('Created token to reset password of user: {}', user._id);
 
-  const updatedUser = await updateUser(id, {
+  const updatedUser = await updateUser(user._id, {
     token,
     ...versionControl(user.email, user.version),
   });

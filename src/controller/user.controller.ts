@@ -369,7 +369,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
   Logger.info('Received request to forgot password');
   res
     .status(status.OK)
-    .json(await userService.forgotPassword(res.locals.id));
+    .json(await userService.forgotPassword(req.body.email));
 };
 
 export const resetPassword = async (req: Request, res: Response) => {

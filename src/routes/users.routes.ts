@@ -56,6 +56,8 @@ router.post(
   loginUser
 );
 
+router.post('/forgot-password', limiter(3, 10 * 60), forgotPassword);
+
 router.post(
   '/reset-password/:token',
   limiter(5, 10 * 60),
@@ -68,8 +70,6 @@ router.use('*', tokenValidator);
 router.get('/', myInfo);
 
 router.put('/me', updateMyInfo);
-
-router.post('/forgot-password', limiter(3, 10 * 60), forgotPassword);
 
 router.patch(
   '/:id/status',
