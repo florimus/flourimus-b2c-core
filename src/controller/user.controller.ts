@@ -337,8 +337,36 @@ export const updateMyInfo = async (req: Request, res: Response) => {
     .json(await userService.updateMyInfo(res.locals.id, req.body));
 };
 
+/**
+ * @swagger
+ *
+ * /users/forgot-password:
+ *   get:
+ *     summary: Forgot password api
+ *     description: API for forgot password token generation
+ *     tags:
+ *       - User APis
+ *     responses:
+ *       200:
+ *         description: Reset password token generated.
+ *         content:
+ *           application/json:
+ *             type: object
+ *             properties:
+ *               message: "Password reset link send to user's email"
+ *               version: 1
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             type: object
+ *             properties:
+ *               message: "unauthorized"
+ *               statusCode: 401
+ *               info: []
+ */
 export const forgotPassword = async (req: Request, res: Response) => {
-  Logger.info('Received request to update my info');
+  Logger.info('Received request to forgot password ');
   res
     .status(status.OK)
     .json(await userService.forgotPassword(res.locals.id));

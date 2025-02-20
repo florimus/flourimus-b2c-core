@@ -413,6 +413,13 @@ const updateMyInfo = async (
   return userHelper.convertToUserViewFromUser(updatedUser as User);
 };
 
+/**
+ * Create reset password token against authenticated user
+ *
+ * @param id - The id of the user.
+ * @returns {Promise<{ message: string, version: number }>}.
+ * @throws {UnAuthorized} If no user is found with the given email.
+ */
 const forgotPassword = async (
   id: string,
 ) => {
