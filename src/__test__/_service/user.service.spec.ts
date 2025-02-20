@@ -1,25 +1,29 @@
+import { comparePassword, hashPassword } from '@core/utils/password.utils';
 import {
   mockCreateSSOUserRequest,
   mockCreateUserRequest,
   mockCreateUserResponse,
 } from '@fixtures/user.service.fixtures';
-
 import BadRequest from '@src/errorBoundary/custom/badrequest.error';
 import Conflict from '@src/errorBoundary/custom/conflict.error';
+import { CreateUserRequestSchema } from '@core/schemas/user.schema';
 import NotFound from '@src/errorBoundary/custom/notFound.error';
 import UnAuthorized from '@src/errorBoundary/custom/unauthorized.error';
-import { comparePassword } from '@core/utils/password.utils';
 import decryptGoogleToken from '@src/auth/googleTokenValidator';
 import userHelper from '@helpers/user.helper';
 import userRepository from '@persistence/repositories/user.repository';
 import userService from '@service/user.service';
+import { validateToken } from '@core/utils/jwt.utils';
 
 jest.mock('@persistence/repositories/user.repository');
 jest.mock('@helpers/user.helper');
 jest.mock('@src/auth/googleTokenValidator');
 jest.mock('@core/utils/password.utils', () => ({
   comparePassword: jest.fn(),
+  hashPassword: jest.fn(),
 }));
+jest.mock('@core/utils/jwt.utils');
+jest.mock('@core/schemas/user.schema');
 
 describe('registerUser', () => {
   it('should return a successful response', async () => {
@@ -596,5 +600,74 @@ describe('forgotPassword', () => {
 
     const response = await userService.forgotPassword('valid-id');
     expect(response).toBeDefined();
+  });
+});
+
+describe('resetPassword', () => {
+  const mockToken = 'valid-token';
+  const mockRequest = { password: 'new-password' };
+  const mockPayload = { id: 'user-id', action: 'reset_password' };
+  const mockUser = {
+    _id: 'user-id',
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'john.doe@example.com',
+    loginType: 'password',
+    token: mockToken,
+    version: 1,
+  };
+  const mockUpdatedUser = { ...mockUser, password: 'hashed-password', token: '', version: 2 };
+
+  it('should throw BadRequest if token is not provided', async () => {
+    await expect(userService.resetPassword('', mockRequest)).rejects.toThrow(BadRequest);
+  });
+
+  it('should throw BadRequest if token is invalid', async () => {
+    (validateToken as jest.Mock).mockReturnValue({ id: '', action: '' });
+
+    await expect(userService.resetPassword(mockToken, mockRequest)).rejects.toThrow(BadRequest);
+  });
+
+  it('should throw NotFound if user does not exist', async () => {
+    (validateToken as jest.Mock).mockReturnValue(mockPayload);
+    (userRepository.findUserById as jest.Mock).mockResolvedValue(null);
+
+    await expect(userService.resetPassword(mockToken, mockRequest)).rejects.toThrow(NotFound);
+  });
+
+  it('should throw BadRequest if user is a Google Sign-in user', async () => {
+    (validateToken as jest.Mock).mockReturnValue(mockPayload);
+    (userRepository.findUserById as jest.Mock).mockResolvedValue({ ...mockUser, loginType: 'google' });
+
+    await expect(userService.resetPassword(mockToken, mockRequest)).rejects.toThrow(BadRequest);
+  });
+
+  it('should throw BadRequest if token does not match user token', async () => {
+    (validateToken as jest.Mock).mockReturnValue(mockPayload);
+    (userRepository.findUserById as jest.Mock).mockResolvedValue({ ...mockUser, token: 'different-token' });
+
+    await expect(userService.resetPassword(mockToken, mockRequest)).rejects.toThrow(BadRequest);
+  });
+
+  it('should throw BadRequest if password is not safe enough', async () => {
+    (validateToken as jest.Mock).mockReturnValue(mockPayload);
+    (userRepository.findUserById as jest.Mock).mockResolvedValue(mockUser);
+    (CreateUserRequestSchema.safeParse as jest.Mock).mockReturnValue({ success: false });
+
+    await expect(userService.resetPassword(mockToken, mockRequest)).rejects.toThrow(BadRequest);
+  });
+
+  it('should reset password successfully', async () => {
+    (validateToken as jest.Mock).mockReturnValue(mockPayload);
+    (userRepository.findUserById as jest.Mock).mockResolvedValue(mockUser);
+    (CreateUserRequestSchema.safeParse as jest.Mock).mockReturnValue({ success: true });
+      (hashPassword as jest.Mock).mockResolvedValue('hashed-password');
+    (userRepository.updateUserById as jest.Mock).mockResolvedValue(mockUpdatedUser);
+
+    const response = await userService.resetPassword(mockToken, mockRequest);
+
+    expect(response).toBeDefined();
+    expect(response).toHaveProperty('message', 'Password reset completed fot the user');
+    expect(response).toHaveProperty('version', 2);
   });
 });
