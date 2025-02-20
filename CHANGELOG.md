@@ -24,6 +24,7 @@ All notable, unreleased changes to this project will be documented in this file.
 ### ⚠️ Breaking Changes
 
 ### 🐛 Bug Fixes
+- fixed token issue in forgot password api - by @Anoopoo7
 - UpdatedBy and UpdatedAt not changing issue fixed -by @Anoopoo7
 
 ### 📌 Other Changes
