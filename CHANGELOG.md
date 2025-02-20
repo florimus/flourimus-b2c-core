@@ -7,6 +7,7 @@ All notable, unreleased changes to this project will be documented in this file.
 # v1.0.0
 
 ### 🔥 Highlights
+- Reset password of the user - by @Anoopoo7
 - Forgot password api for password rest token generation - by @Anoopoo7
 - Api for updating current authenticated user - by @Anoopoo7
 
