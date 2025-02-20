@@ -457,7 +457,7 @@ const forgotPassword = async (
 
   return {
     message: 'Password reset link send to user\'s email',
-    version: updatedUser?.version,
+    version: updatedUser!.version,
   };
 
 };
