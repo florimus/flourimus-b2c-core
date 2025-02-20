@@ -337,7 +337,7 @@ const updateUserInfo = async (
   const user = await findUserById(id);
 
   if (!user) {
-    Logger.error('User with the given email not exists');
+    Logger.error('User with the given id not exists');
     throw new NotFound('User with the given id not exists');
   }
 
@@ -385,7 +385,7 @@ const updateMyInfo = async (
   const user = await findUserById(id);
 
   if (!user) {
-    Logger.error('User with the given email not exists');
+    Logger.error('User with the given id not exists');
     throw new NotFound('User with the given id not exists');
   }
 
@@ -413,6 +413,55 @@ const updateMyInfo = async (
   return userHelper.convertToUserViewFromUser(updatedUser as User);
 };
 
+/**
+ * Create reset password token against authenticated user
+ *
+ * @param id - The id of the user.
+ * @returns {Promise<{ message: string, version: number }>}.
+ * @throws {UnAuthorized} If no user is found with the given email.
+ */
+const forgotPassword = async (
+  id: string,
+) => {
+  if (!id) {
+    throw new BadRequest('id not found');
+  }
+
+  const user = await findUserById(id);
+
+  if (!user) {
+    Logger.error('User with the given id not exists');
+    throw new NotFound('User with the given id not exists');
+  }
+
+  Logger.info('User {} fetched successfully', user._id);
+
+  const tokenPayload = {
+    id,
+    action: 'reset_password'
+  };
+
+  const token = generateToken(
+    tokenPayload,
+    TokenTypes.accessToken
+  );
+
+  Logger.info('Created token to reset password of user: {}', id);
+
+  const updatedUser = await updateUser(id, {
+    token,
+    ...versionControl(user.email, user.version),
+  });
+
+  // TODO: need to handle the email integration.
+
+  return {
+    message: 'Password reset link send to user\'s email',
+    version: updatedUser!.version,
+  };
+
+};
+
 export default {
   registerUser,
   registerSSOUser,
@@ -422,5 +471,6 @@ export default {
   userStatusUpdate,
   getUserInfo,
   updateUserInfo,
-  updateMyInfo
+  updateMyInfo,
+  forgotPassword
 };

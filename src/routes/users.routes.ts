@@ -6,6 +6,7 @@ import {
   UserUpdateRequestSchema,
 } from '@core/schemas/user.schema';
 import {
+  forgotPassword,
   getUserInfo,
   loginSSOUser,
   loginUser,
@@ -58,6 +59,12 @@ router.use('*', tokenValidator);
 router.get('/', myInfo);
 
 router.put('/', updateMyInfo);
+
+router.put(
+  '/forgot-password',
+  limiter(3, 10 * 60),
+  forgotPassword
+);
 
 router.patch(
   '/:id/status',

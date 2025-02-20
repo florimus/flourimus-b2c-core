@@ -573,3 +573,28 @@ describe('updateMyInfo', () => {
     });
   });
 });
+
+describe('forgotPassword', () => {
+  it('should throw bad request error if id not found', async () => {
+    await expect(
+      userService.forgotPassword(null as unknown as string)
+    ).rejects.toThrow(BadRequest);
+  });
+
+  it('should throw notfound error if user not found with id', async () => {
+    (userRepository.findUserById as jest.Mock).mockResolvedValue(null);
+
+    await expect(userService.forgotPassword('invalid-id')).rejects.toThrow(
+      NotFound
+    );
+  });
+
+  it('should create valid token', async () => {
+    (userRepository.findUserById as jest.Mock).mockResolvedValue(
+      mockCreateUserResponse
+    );
+
+    const response = await userService.forgotPassword('valid-id');
+    expect(response).toBeDefined();
+  });
+});
