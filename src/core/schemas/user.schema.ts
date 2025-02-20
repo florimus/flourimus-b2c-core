@@ -78,3 +78,9 @@ export const UserUpdateRequestSchema = z.object({
     ])
     .optional(),
 });
+
+export const ResetPasswordRequestSchema = z.object({
+  password: z
+    .string({ required_error: 'password is required' })
+    .min(8, 'Password must be at least 8 characters long'),
+});

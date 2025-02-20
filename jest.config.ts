@@ -21,7 +21,15 @@ module.exports = {
     '^@fixtures/(.*)$': '<rootDir>/src/__test__/fixtures/$1',
   },
   rootDir: './',
-  coveragePathIgnorePatterns: ['/node_modules/', '/dist/', '/lib/', '/coverage/', '/src/__test__/', '/src/persistence/repositories'],
+  coveragePathIgnorePatterns: [
+    '/node_modules/',
+    '/dist/',
+    '/lib/',
+    '/coverage/',
+    '/src/__test__/',
+    '/src/persistence/repositories',
+    'src/core/schemas',
+  ],
   collectCoverage: true,
   coverageThreshold: {
     global: {

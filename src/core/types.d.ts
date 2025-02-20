@@ -1,4 +1,10 @@
-import { CreateSSOUserRequestSchema, CreateUserRequestSchema, LoginSSOUserRequestSchema, LoginUserRequestSchema } from '@core/schemas/user.schema';
+import {
+  CreateSSOUserRequestSchema,
+  CreateUserRequestSchema,
+  LoginSSOUserRequestSchema,
+  LoginUserRequestSchema,
+  ResetPasswordRequestSchema,
+} from '@core/schemas/user.schema';
 import TokenTypes from '@core/enums/token.types';
 import { z } from 'zod';
 
@@ -107,12 +113,12 @@ export interface AccessTokenPayload {
   email: string;
   role: string;
   type: TokenTypes.accessToken;
-} 
+}
 
 export interface RefreshTokenPayload {
   _id: string;
   type: TokenTypes.refreshToken;
-} 
+}
 
 /**
  * @swagger
@@ -185,7 +191,6 @@ export type LoginSSOUserRequest = z.infer<typeof LoginSSOUserRequestSchema>;
  */
 export type LoginUserRequest = z.infer<typeof LoginUserRequestSchema>;
 
-
 /**
  * @swagger
  * components:
@@ -246,6 +251,8 @@ export interface UserView extends CommonTypes {
   isBlocked: boolean;
   loginType: 'password' | 'google';
 }
+
+export type ResetPasswordRequest = z.infer<typeof ResetPasswordRequestSchema>;
 
 interface CommonTypes {
   version?: number;
