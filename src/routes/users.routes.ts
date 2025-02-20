@@ -3,6 +3,7 @@ import {
   CreateUserRequestSchema,
   LoginSSOUserRequestSchema,
   LoginUserRequestSchema,
+  ResetPasswordRequestSchema,
   UserUpdateRequestSchema,
 } from '@core/schemas/user.schema';
 import {
@@ -13,6 +14,7 @@ import {
   myInfo,
   registerSSOUser,
   registerUser,
+  resetPassword,
   updateMyInfo,
   updateUserInfo,
   userStatusUpdate,
@@ -54,17 +56,20 @@ router.post(
   loginUser
 );
 
+router.post(
+  '/reset-password/:token',
+  limiter(5, 10 * 60),
+  inspect(ResetPasswordRequestSchema),
+  resetPassword
+);
+
 router.use('*', tokenValidator);
 
 router.get('/', myInfo);
 
-router.put('/', updateMyInfo);
+router.put('/me', updateMyInfo);
 
-router.put(
-  '/forgot-password',
-  limiter(3, 10 * 60),
-  forgotPassword
-);
+router.post('/forgot-password', limiter(3, 10 * 60), forgotPassword);
 
 router.patch(
   '/:id/status',

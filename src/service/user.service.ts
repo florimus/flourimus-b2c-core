@@ -3,22 +3,24 @@ import {
   CreateUserRequest,
   LoginSSOUserRequest,
   LoginUserRequest,
+  ResetPasswordRequest,
   Token,
   User,
 } from '@core/types';
+import { comparePassword, hashPassword } from '@core/utils/password.utils';
 import {
   createUserAccessTokenPayload,
   createUserRefreshTokenPayload,
 } from '@src/auth/payload.generator';
+import { generateToken, validateToken } from '@core/utils/jwt.utils';
 import BadRequest from '@src/errorBoundary/custom/badrequest.error';
 import Conflict from '@src/errorBoundary/custom/conflict.error';
+import { CreateUserRequestSchema } from '@core/schemas/user.schema';
 import Logger from '@core/logger';
 import NotFound from '@src/errorBoundary/custom/notFound.error';
 import TokenTypes from '@core/enums/token.types';
 import UnAuthorized from '@src/errorBoundary/custom/unauthorized.error';
-import { comparePassword } from '@core/utils/password.utils';
 import decryptGoogleToken from '@src/auth/googleTokenValidator';
-import { generateToken } from '@core/utils/jwt.utils';
 import userHelper from '@helpers/user.helper';
 import userRepository from '@persistence/repositories/user.repository';
 import versionControl from '@core/utils/version.utils';
@@ -374,10 +376,7 @@ const updateUserInfo = async (
  * @throws {NotFound} If the user with the given ID does not exist.
  * @returns The updated user information in a view format.
  */
-const updateMyInfo = async (
-  id: string,
-  request: Partial<User>
-) => {
+const updateMyInfo = async (id: string, request: Partial<User>) => {
   if (!id) {
     throw new BadRequest('id not found');
   }
@@ -420,9 +419,7 @@ const updateMyInfo = async (
  * @returns {Promise<{ message: string, version: number }>}.
  * @throws {UnAuthorized} If no user is found with the given email.
  */
-const forgotPassword = async (
-  id: string,
-) => {
+const forgotPassword = async (id: string) => {
   if (!id) {
     throw new BadRequest('id not found');
   }
@@ -436,15 +433,12 @@ const forgotPassword = async (
 
   Logger.info('User {} fetched successfully', user._id);
 
-  const tokenPayload = {
+  const tokenPayload: { id: string; action: string } = {
     id,
-    action: 'reset_password'
+    action: 'reset_password',
   };
 
-  const token = generateToken(
-    tokenPayload,
-    TokenTypes.accessToken
-  );
+  const token = generateToken(tokenPayload, TokenTypes.accessToken);
 
   Logger.info('Created token to reset password of user: {}', id);
 
@@ -459,7 +453,75 @@ const forgotPassword = async (
     message: 'Password reset link send to user\'s email',
     version: updatedUser!.version,
   };
+};
 
+/**
+ * Resets the password for a user based on the provided token and request.
+ *
+ * @param {string} token - The token used to validate the password reset request.
+ * @param {ResetPasswordRequest} request - The request object containing the new password.
+ * @throws {BadRequest} If the token is not found or invalid for password reset, or if the user is a Google Sign-in user, or if the new password matches the old password, or if the new password is not safe enough.
+ * @throws {NotFound} If the user with the given ID does not exist.
+ * @throws {UnAuthorized} If the new password matches the old password.
+ * @returns {Promise<{ message: string; version: number }>} An object containing a success message and the updated user version.
+ */
+const resetPassword = async (token: string, request: ResetPasswordRequest) => {
+  if (!token) {
+    Logger.error('Token not found');
+    throw new BadRequest('Token not found');
+  }
+
+  const payload = validateToken(token) as { id: string; action: string };
+
+  if (!payload.id || payload.action !== 'reset_password') {
+    Logger.error('Token invalid for reset password');
+    throw new BadRequest('Token invalid for reset password');
+  }
+
+  const user = await findUserById(payload.id);
+
+  if (!user) {
+    Logger.error('User with the given id not exists');
+    throw new NotFound('User with the given id not exists');
+  }
+
+  Logger.info('User {} fetched successfully', user._id);
+
+  if (user.loginType !== 'password') {
+    Logger.error('Google user cannot reset password');
+    throw new BadRequest('Google Sign-in user cannot reset password');
+  }
+
+  if (user.token !== token) {
+    Logger.error('Token not match');
+    throw new BadRequest('Token not match with user token');
+  }
+
+  const result = CreateUserRequestSchema.safeParse({
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    password: request.password,
+  });
+
+  if (!result.success) {
+    throw new BadRequest(
+      'This password cannot be safe enough. may contain user\'s info'
+    );
+  }
+
+  const updatedUser = await updateUser(user._id, {
+    password: await hashPassword(request.password),
+    token: '',
+    ...versionControl(user.email, user.version),
+  });
+
+  // TODO: need to handle the email integration.
+
+  return {
+    message: 'Password reset completed fot the user',
+    version: updatedUser!.version,
+  };
 };
 
 export default {
@@ -472,5 +534,6 @@ export default {
   getUserInfo,
   updateUserInfo,
   updateMyInfo,
-  forgotPassword
+  forgotPassword,
+  resetPassword,
 };

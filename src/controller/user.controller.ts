@@ -366,8 +366,15 @@ export const updateMyInfo = async (req: Request, res: Response) => {
  *               info: []
  */
 export const forgotPassword = async (req: Request, res: Response) => {
-  Logger.info('Received request to forgot password ');
+  Logger.info('Received request to forgot password');
   res
     .status(status.OK)
     .json(await userService.forgotPassword(res.locals.id));
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  Logger.info('Received request to reset password');
+  res
+    .status(status.OK)
+    .json(await userService.resetPassword(req.params.token, req.body));
 };
