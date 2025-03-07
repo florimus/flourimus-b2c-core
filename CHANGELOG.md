@@ -1,3 +1,16 @@
+# R1.1.0
+
+### 🔥 Highlights
+
+
+### ⚠️ Breaking Changes
+
+
+### 🐛 Bug Fixes
+
+
+### 📌 Other Changes
+
 # Changelog
 
 All notable, unreleased changes to this project will be documented in this file. For the released changes, please visit the [Releases](https://github.com/florimus/flourimus-b2c-core/releases) page.
